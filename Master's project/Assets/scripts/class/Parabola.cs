@@ -38,7 +38,14 @@ public class Parabola
         right = p;
         p.parent = this;
     }
-
+    public Parabola Left()
+    {
+        return left;
+    }
+    public Parabola Right()
+    {
+        return right;
+    }
     public Parabola GetLeft(Parabola p)
     {
         return GetLeftChild(GetLeftParent(p));
@@ -53,7 +60,8 @@ public class Parabola
         Parabola pLast = p;
         while (par.left == pLast)
         {
-            if (par.parent==null) return null;
+            if (par.parent==null) 
+                return null;
             pLast = par;
             par = par.parent;
         }
@@ -65,7 +73,8 @@ public class Parabola
         Parabola pLast = p;
         while (par.right == pLast)
         {
-            if (par.parent == null) return null;
+            if (par.parent == null) 
+                return null;
             pLast = par;
             par = par.parent;
         }
@@ -73,18 +82,25 @@ public class Parabola
     }
     public Parabola GetLeftChild(Parabola p)
     {
-        if (p==null) return null;
+        if (p == null)
+            return null;
+
         Parabola par = p.left;
+
         while (!par.isLeaf) 
             par = par.right;
         return par;
     }
     public Parabola GetRightChild(Parabola p)
     {
-        if (p == null) return null;
+        if (p == null) 
+            return null;
+
         Parabola par = p.right;
+
         while (!par.isLeaf)
             par = par.left;
+
         return par;
     }
 }

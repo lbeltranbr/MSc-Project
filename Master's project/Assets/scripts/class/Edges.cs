@@ -13,7 +13,7 @@ public class Edges
     public Edges neighbour;
 
     public float f, g;
-    public void setEdges(Point s, Point l, Point r)
+    public Edges(Point s, Point l, Point r)
     {
         start = s;
         left = l;
@@ -23,5 +23,6 @@ public class Edges
 
         f = (r.x - l.x) / (l.y - r.y);
         g = s.y - (f * s.x);
+        direction = new Point(r.y - l.y, -(r.x - l.x),0);
     }
 }
