@@ -15,7 +15,7 @@ public class Parabola
     public Parabola()
     {
         site = null;
-        isLeaf = true;
+        isLeaf = false;
         cEvent = null;
         edge = null;
         parent = null;
@@ -30,13 +30,24 @@ public class Parabola
     }
     public void SetLeft( Parabola p)
     {
+        //Debug.Log("SET LEFT, passem parabola p");
+
         left = p;
         p.parent = this;
+
+        //Debug.Log("Left: "+ left.site.getPoint());
+        //Debug.Log("p.parent: "+ p.parent.site.getPoint());
+
     }
     public void SetRight(Parabola p)
     {
+        //Debug.Log("SET RIGHT, passem parabola p: " + p.site.getPoint());
+
         right = p;
         p.parent = this;
+
+        //Debug.Log("Right: " + right.site.getPoint());
+        //Debug.Log("p.parent: " + p.parent.site.getPoint());
     }
     public Parabola Left()
     {
@@ -89,6 +100,7 @@ public class Parabola
 
         while (!par.isLeaf) 
             par = par.right;
+
         return par;
     }
     public Parabola GetRightChild(Parabola p)
