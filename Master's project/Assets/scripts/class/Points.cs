@@ -5,14 +5,14 @@ using UnityEngine;
 public class Point
 {
     public float x, y, z;
-    public List<Tetrahedron> adjacentTriangles;
+    public List<Tetrahedron> adjacentTetrahedrons;
 
     public Point(float xpos,float ypos, float zpos)
     {
         x = xpos;
         y = ypos;
         z = zpos;
-        adjacentTriangles = new List<Tetrahedron>();
+        adjacentTetrahedrons = new List<Tetrahedron>();
     }
     public Vector3 getPoint()
     {

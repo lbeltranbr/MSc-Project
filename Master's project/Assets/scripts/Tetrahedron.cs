@@ -7,6 +7,8 @@ public class Tetrahedron
     public Point[] vertices = new Point[4];
     public Point circumcenter;
     public float circumradius_2;
+    public List<Face> faces = new List<Face>();
+    public bool isBad = false;
 
     public Tetrahedron(Point p1, Point p2, Point p3, Point p4)
     {
@@ -18,10 +20,24 @@ public class Tetrahedron
         CalculateCircumcenter();
         CalculateCircumradius();
 
-        vertices[0].adjacentTriangles.Add(this);
-        vertices[1].adjacentTriangles.Add(this);
-        vertices[2].adjacentTriangles.Add(this);
-        vertices[3].adjacentTriangles.Add(this);
+        vertices[0].adjacentTetrahedrons.Add(this);
+        vertices[1].adjacentTetrahedrons.Add(this);
+        vertices[2].adjacentTetrahedrons.Add(this);
+        vertices[3].adjacentTetrahedrons.Add(this);
+
+        faces.Add(new Face(p1, p2, p3, this));
+        faces.Add(new Face(p2, p3, p4, this));
+        faces.Add(new Face(p3, p4, p1, this));
+        faces.Add(new Face(p4, p1, p2, this));
+
+        /************************DEBUG************************/
+        Debug.DrawLine(p1.getPoint(), p2.getPoint(), new Color(0, 0, 0),60f);
+        Debug.DrawLine(p1.getPoint(), p3.getPoint(), new Color(0, 0, 0),60f);
+        Debug.DrawLine(p2.getPoint(), p3.getPoint(), new Color(0, 0, 0),60f);
+        Debug.DrawLine(p2.getPoint(), p4.getPoint(), new Color(0, 0, 0),60f);
+        Debug.DrawLine(p3.getPoint(), p4.getPoint(), new Color(0, 0, 0),60f);
+        Debug.DrawLine(p4.getPoint(), p1.getPoint(), new Color(0, 0, 0),60f);
+        /************************DEBUG************************/
 
     }
     public void CalculateCircumcenter()
@@ -54,4 +70,20 @@ public class Tetrahedron
         float d_2 = (p.x - circumcenter.x) * (p.x - circumcenter.x) + (p.y - circumcenter.y) * (p.y - circumcenter.y) + (p.z - circumcenter.z) * (p.z - circumcenter.z);            
         return d_2 < circumradius_2;
     }
+
+    //Find neighbours of the tetrahedon
+    public List<Tetrahedron> getNeighbors()
+    {
+        List<Tetrahedron> neighbors = new List<Tetrahedron>();
+
+        foreach (Face f in faces)
+        {
+            if (f.left == this && f.right != null)
+                neighbors.Add(f.right);
+            else if (f.right == this && f.left != null)
+                neighbors.Add(f.left);
+        }
+        return neighbors;
+    }
+
 }
