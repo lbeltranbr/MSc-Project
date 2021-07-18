@@ -9,7 +9,7 @@ public class Tetrahedron
     public float circumradius_2;
     public List<Face> faces = new List<Face>();
     public bool isBad = false;
-
+    public List<int> nosharedfaces = new List<int>();
     public Tetrahedron(Point p1, Point p2, Point p3, Point p4)
     {
         vertices[0] = p1;
@@ -17,20 +17,20 @@ public class Tetrahedron
         vertices[2] = p3;
         vertices[3] = p4;
 
+        
+        faces.Add(new Face(p1, p2, p3, this,0));
+        faces.Add(new Face(p2, p3, p4, this,1));
+        faces.Add(new Face(p3, p4, p1, this,2));
+        faces.Add(new Face(p4, p1, p2, this,3));
+
+        nosharedfaces.Add(0);
+        nosharedfaces.Add(1);
+        nosharedfaces.Add(2);
+        nosharedfaces.Add(3);
+
         CalculateCircumcenter();
-        CalculateCircumradius();
 
-        vertices[0].adjacentTetrahedrons.Add(this);
-        vertices[1].adjacentTetrahedrons.Add(this);
-        vertices[2].adjacentTetrahedrons.Add(this);
-        vertices[3].adjacentTetrahedrons.Add(this);
-
-        faces.Add(new Face(p1, p2, p3, this));
-        faces.Add(new Face(p2, p3, p4, this));
-        faces.Add(new Face(p3, p4, p1, this));
-        faces.Add(new Face(p4, p1, p2, this));
-
-        /************************DEBUG************************/
+        /************************DEBUG************************
         Debug.DrawLine(p1.getPoint(), p2.getPoint(), new Color(0, 0, 0),60f);
         Debug.DrawLine(p1.getPoint(), p3.getPoint(), new Color(0, 0, 0),60f);
         Debug.DrawLine(p2.getPoint(), p3.getPoint(), new Color(0, 0, 0),60f);
@@ -53,17 +53,19 @@ public class Tetrahedron
         Matrix4x4 mat_dx = new Matrix4x4(new Vector4(c1, c2, c3, c4), new Vector4(vertices[0].y, vertices[1].y, vertices[2].y, vertices[3].y), new Vector4(vertices[0].z, vertices[1].z, vertices[2].z, vertices[3].z), new Vector4(1, 1, 1, 1));
         float dx = mat_dx.determinant;
         Matrix4x4 mat_dy = new Matrix4x4(new Vector4(c1, c2, c3, c4), new Vector4(vertices[0].x, vertices[1].x, vertices[2].x, vertices[3].x), new Vector4(vertices[0].z, vertices[1].z, vertices[2].z, vertices[3].z), new Vector4(1, 1, 1, 1));
-        float dy = mat_dy.determinant;
+        float dy = -mat_dy.determinant;
         Matrix4x4 mat_dz = new Matrix4x4(new Vector4(c1, c2, c3, c4), new Vector4(vertices[0].x, vertices[1].x, vertices[2].x, vertices[3].x), new Vector4(vertices[0].y, vertices[1].y, vertices[2].y, vertices[3].y), new Vector4(1, 1, 1, 1));
         float dz = mat_dz.determinant;
+        Matrix4x4 mat_g = new Matrix4x4(new Vector4(c1, c2, c3, c4), new Vector4(vertices[0].x, vertices[1].x, vertices[2].x, vertices[3].x), new Vector4(vertices[0].y, vertices[1].y, vertices[2].y, vertices[3].y), new Vector4(vertices[0].z, vertices[1].z, vertices[2].z, vertices[3].z));
+        float g = mat_g.determinant;
 
         circumcenter = new Point(dx / (2 * a), dy / (2 * a), dz / (2 * a));
-      
-    }
-    public void CalculateCircumradius()
-    {
+
         circumradius_2 = (vertices[0].x - circumcenter.x) * (vertices[0].x - circumcenter.x) + (vertices[0].y - circumcenter.y) * (vertices[0].y - circumcenter.y) + (vertices[0].z - circumcenter.z) * (vertices[0].z - circumcenter.z);
+        //circumradius_2 = (dx * dx + dy * dy + dz * dz - 4 * a * g) / (4*a*a);
+
     }
+ 
 
     public bool IsPointInsideSphere(Point p)
     {
@@ -72,18 +74,43 @@ public class Tetrahedron
     }
 
     //Find neighbours of the tetrahedon
-    public List<Tetrahedron> getNeighbors()
+    public List<Tetrahedron> getNeighbors(List<Tetrahedron> t)
     {
         List<Tetrahedron> neighbors = new List<Tetrahedron>();
-
-        foreach (Face f in faces)
+        int count = 0;
+        bool b = false;
+        foreach(Tetrahedron tet in t)
         {
-            if (f.left == this && f.right != null)
-                neighbors.Add(f.right);
-            else if (f.right == this && f.left != null)
-                neighbors.Add(f.left);
+            if (count == 4)
+                break;
+            
+            if (!tet.circumcenter.getPoint().Equals(circumcenter.getPoint())) //if it's not the same tetrahedron
+            {
+                foreach (Face f0 in tet.faces)
+                {
+                    if (b)
+                    {
+                        b = false;
+                        break;
+                    }
+                    foreach (Face f in faces)
+                    {
+                        if (f.IsEqual(f0))
+                        {
+                            neighbors.Add(tet);
+                            count++;
+                            b = true;
+                            nosharedfaces.Remove(f.id);
+                            break;
+                        }
+
+                    }
+                }
+            }
+           
         }
-        return neighbors;
+            return neighbors;
+
     }
 
 }

@@ -11,10 +11,10 @@ public class main : MonoBehaviour
     // Start is called before the first frame update
     public int pointsAmount;
     public GameObject container;
-    public Plane plane;
+    public bool debug;
 
     private delaunay d;
-    private Incremental i;
+    private Incremental incremental;
 
     private List<Point> points;
     private List<Vector4> color_points;
@@ -23,8 +23,10 @@ public class main : MonoBehaviour
     {
        
         getPoints();
-        d = new delaunay();
-        i = new Incremental(points, transform.position, transform.localScale);
+        //d = new delaunay();
+
+        incremental = new Incremental(points, transform.position, transform.localScale,debug);
+        incremental.CalculateVCell();
 
         /*d.getEdges(points, transform.localScale.x, transform.localScale.y, transform.localScale.z);
 
@@ -64,10 +66,12 @@ public class main : MonoBehaviour
         {
             
             points.Add(new Point(Random.Range(-transform.localScale.x / 2, transform.localScale.x / 2) + transform.position.x, Random.Range(-transform.localScale.y / 2, transform.localScale.y / 2) + transform.position.y, Random.Range(-transform.localScale.z / 2, transform.localScale.z / 2) + transform.position.z));
-            
-            color_points.Add(new Vector4(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f), 1f));
-            renderPoints(i);
-           
+
+            if (debug)
+            {
+                color_points.Add(new Vector4(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f), 1f));
+                renderPoints(i);
+            }
 
         }
 

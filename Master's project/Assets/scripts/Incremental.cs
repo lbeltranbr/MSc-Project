@@ -8,9 +8,12 @@ public class Incremental
     public List<Point> points;
     public List<Tetrahedron> triangulation;
 
-    public Incremental(List<Point> p, Vector3 obj_pos, Vector3 obj_scale)
+    private bool debug;
+
+    public Incremental(List<Point> p, Vector3 obj_pos, Vector3 obj_scale, bool d)
     {
         points = p;
+        debug = d;
         triangulation = new List<Tetrahedron>();
         BowyerWatson( obj_pos,  obj_scale);
     }
@@ -26,22 +29,7 @@ public class Incremental
 
 
         Vector3 s = (obj_scale/2) * 8 + obj_pos;
-        /*GameObject sph = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        sph.transform.Translate(new Vector3(2 * obj_pos.x - s.x, -s.y / 2, -s.z));
-        sph.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
-
-        GameObject sph2 = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        sph2.transform.Translate(new Vector3(s.x, -s.y/2, -s.z));
-        sph2.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
-
-        GameObject sph3 = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        sph3.transform.Translate(new Vector3(obj_pos.x, -s.y/2, s.z));
-        sph3.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
-
-        GameObject sph4 = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        sph4.transform.Translate(new Vector3(obj_pos.x, s.y, obj_pos.z));
-        sph4.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);*/
-              
+                     
         Tetrahedron s_t = new Tetrahedron(new Point(2 * obj_pos.x - s.x, -s.y / 2, -s.z), new Point(s.x, -s.y / 2, -s.z), new Point(obj_pos.x, -s.y / 2, s.z), new Point(obj_pos.x, s.y, obj_pos.z));
         triangulation.Add(s_t);
 
@@ -55,45 +43,41 @@ public class Incremental
             foreach (var f in polygon)
             {
                 Tetrahedron tetra = new Tetrahedron(it, f.Point1, f.Point2, f.Point3);
-                triangulation.Add(tetra);
-
-                /************************DEBUG************************
-                Debug.DrawLine(it.getPoint(), f.Point1.getPoint(), new Color(1, 0, 0), 60f);
-                Debug.DrawLine(it.getPoint(), f.Point2.getPoint(), new Color(1, 0, 0), 60f);
-                Debug.DrawLine(f.Point1.getPoint(), f.Point2.getPoint(), new Color(1, 0, 0), 60f);
-                Debug.DrawLine(f.Point1.getPoint(), f.Point3.getPoint(), new Color(1, 0, 0), 60f);
-                Debug.DrawLine(f.Point2.getPoint(), f.Point3.getPoint(), new Color(1, 0, 0), 60f);
-                Debug.DrawLine(f.Point3.getPoint(), it.getPoint(), new Color(1, 0, 0), 60f);
-                /************************DEBUG************************/
+                triangulation.Add(tetra);           
             }
+            polygon.Clear();
         }
-    
+
         foreach (Tetrahedron tetra in triangulation.ToList())
         {
+
             foreach(Face f in tetra.faces)
             {
-                if(CheckFace(f,s_t))
-                   triangulation.Remove(tetra);
+                if (CheckFace(f, s_t))
+                {
+                    triangulation.Remove(tetra);
+                    break;
+                }
             }
 
         }
 
-
-        foreach (Tetrahedron tetra in triangulation)
+        if (debug)
         {
-            foreach(Face f in tetra.faces)
+            foreach (Tetrahedron tetra in triangulation)
             {
-                /************************DEBUG************************/
-                Debug.DrawLine(f.Point1.getPoint(), f.Point2.getPoint(), new Color(0, 0, 1), 60f);
-                Debug.DrawLine(f.Point1.getPoint(), f.Point3.getPoint(), new Color(0, 0, 1), 60f);
-                Debug.DrawLine(f.Point2.getPoint(), f.Point3.getPoint(), new Color(0, 0, 1), 60f);
-                /************************DEBUG************************/
+                foreach (Face f in tetra.faces)
+                {
+                    /************************DEBUG************************/
+                    Debug.DrawLine(f.Point1.getPoint(), f.Point2.getPoint(), new Color(0, 0, 1), 1200f);
+                    Debug.DrawLine(f.Point1.getPoint(), f.Point3.getPoint(), new Color(0, 0, 1), 1200f);
+                    Debug.DrawLine(f.Point2.getPoint(), f.Point3.getPoint(), new Color(0, 0, 1), 1200f);
+                    /************************DEBUG************************/
+                }
+                tetra.getNeighbors(triangulation);
+
             }
-
         }
-
-
-
     }
 
     public List<Tetrahedron> FindBadTetrahedron(Point p, List<Tetrahedron> t)
@@ -116,16 +100,31 @@ public class Incremental
     public List<Face> FindHoleBoundaries(List<Tetrahedron> badT)
     {
         var faces = new List<Face>();
+        bool n = false;
 
         foreach (Tetrahedron t in badT)
         {
-            foreach(Face f in t.faces)
+            foreach (Face f in t.faces)
             {
-                if(f.right == null || !f.left.isBad  || !f.right.isBad)
+                n = false;
+                foreach (Tetrahedron t2 in badT)
+                {
+                    if (t.circumcenter.getPoint().Equals(t2.circumcenter.getPoint())) //if it's not the same tetrahedron
+                        break;
+
+                    foreach(Face f2 in t2.faces)
+                    {
+                        if (f.IsEqual(f2))
+                        {
+                            n = true;
+                            break;
+                        }
+                    }
+                }
+                if (!n)
                     faces.Add(f);
             }
         }
-   
         return faces;
     }
 
@@ -138,6 +137,40 @@ public class Incremental
         }
 
         return false;
+    }
+
+    public void CalculateVCell()
+    {
+        
+        foreach (Tetrahedron tetra in triangulation)
+        {
+            List<Tetrahedron> n = tetra.getNeighbors(triangulation);
+            /************************DEBUG************************
+            GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            sphere.transform.position = tetra.circumcenter.getPoint();
+            sphere.transform.localScale = new Vector3(Mathf.Sqrt(tetra.circumradius_2)*2, Mathf.Sqrt(tetra.circumradius_2)*2, Mathf.Sqrt(tetra.circumradius_2)*2);
+            /************************DEBUG************************/
+            foreach (var i in n)
+            {
+                Debug.DrawLine(tetra.circumcenter.getPoint(), i.circumcenter.getPoint(), new Color(1, 0, 0), 1200f);
+            }
+            if (n.Count < 4)
+            {
+                for(int i=0; i<tetra.nosharedfaces.Count();i++)
+                {
+                    int index = tetra.nosharedfaces[i];
+                    float x = (tetra.faces[index].Point1.x + tetra.faces[index].Point2.x + tetra.faces[index].Point3.x)/3;
+                    float y = (tetra.faces[index].Point1.y + tetra.faces[index].Point2.y + tetra.faces[index].Point3.y)/3;
+                    float z = (tetra.faces[index].Point1.z + tetra.faces[index].Point2.z + tetra.faces[index].Point3.z)/3;
+
+                    Vector3 centre = new Vector3(x, y, z);
+                    Vector3 dir = (centre - tetra.circumcenter.getPoint()).normalized;
+                    Debug.DrawRay(tetra.circumcenter.getPoint(), dir, new Color(0, 1, 0), 1200f);
+
+                }
+            }
+            
+        }
     }
 
 }
