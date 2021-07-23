@@ -13,43 +13,36 @@ public class main : MonoBehaviour
     public GameObject container;
     public bool debug;
 
-    private delaunay d;
+    private Sweep sweep;
     private Incremental incremental;
 
     private List<Point> points;
     private List<Vector4> color_points;
 
+    private GameObject[] slices;
+
     void Start()
     {
        
         getPoints();
-        //d = new delaunay();
 
-        incremental = new Incremental(points, transform.position, transform.localScale,debug);
-        incremental.CalculateVCell();
+        //incremental = new Incremental(points, transform.position, transform.localScale,debug);
+        //incremental.CalculateVCell();
+        //slices = Slicer.Slice(incremental.cutP[0], gameObject);
 
-        /*d.getEdges(points, transform.localScale.x, transform.localScale.y, transform.localScale.z);
+        /* foreach (var i in incremental.cutP)
+             slices = Slicer.Slice(i, gameObject);*/
 
-        Debug.Log("end");
+        //Destroy(gameObject);
 
-        Color color = new Color(0, 0, 0);
-        foreach (var it in d.edges)
-        {
-            Debug.Log(it.start.getPoint());
-            Debug.Log(it.end.getPoint());
-            plane.SetNormalAndPosition(it.n, it.start.getPoint());
-            
-        }*/
+        //sweep = new Sweep(points, transform.position, transform.localScale, debug);
+        delaunay d = new delaunay();
+        d.getEdges(points, 1, 1, 1);
+       
     }
 
     // Update is called once per frame
-    void Update()
-    {
-        
-
-
-
-    }
+   
 
     public void getPoints()
     {
@@ -62,10 +55,16 @@ public class main : MonoBehaviour
         points = new List<Point>();
         color_points = new List<Vector4>();
 
+        points.Add(new Point(0, 0.95f, 0));
+        points.Add(new Point(-0.1f, 0.8f, -0.1f));
+        points.Add(new Point(0.3f, 0.6f, 0.1f));
+        points.Add(new Point(-0.4f, 0.1f, 0.4f));
+        points.Add(new Point(0, 0.2f, -0.4f));
+
         for (int i = 0; i < pointsAmount; i++)
         {
             
-            points.Add(new Point(Random.Range(-transform.localScale.x / 2, transform.localScale.x / 2) + transform.position.x, Random.Range(-transform.localScale.y / 2, transform.localScale.y / 2) + transform.position.y, Random.Range(-transform.localScale.z / 2, transform.localScale.z / 2) + transform.position.z));
+            //points.Add(new Point(Random.Range(-transform.localScale.x / 2, transform.localScale.x / 2) + transform.position.x, Random.Range(-transform.localScale.y / 2, transform.localScale.y / 2) + transform.position.y, Random.Range(-transform.localScale.z / 2, transform.localScale.z / 2) + transform.position.z));
 
             if (debug)
             {
@@ -80,6 +79,8 @@ public class main : MonoBehaviour
     public void renderPoints(int i)
     {
         GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        sphere.GetComponent<SphereCollider>().enabled = false;
+
         sphere.GetComponent<Renderer>().material.SetColor("_Color", color_points[i]);
         sphere.transform.localScale = new Vector3(0.025f, 0.025f, 0.025f);
         sphere.transform.position = points[i].getPoint();

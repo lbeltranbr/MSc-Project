@@ -32,7 +32,6 @@ public class Edges
 
         d = -(n.x * s.x + n.y * s.y + n.z * s.z);
 
-        plane.SetNormalAndPosition(n, start.getPoint());
 
         f = (r.x - l.x) / (l.y - r.y); //slope
         g = s.y - (f * s.x);// y axis intersection

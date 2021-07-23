@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace Assets.Scripts
-{
+
     class Slicer
     {
         /// <summary>
@@ -92,4 +91,4 @@ namespace Assets.Scripts
             rb.useGravity = useGravity;
         }
     }
-}
+

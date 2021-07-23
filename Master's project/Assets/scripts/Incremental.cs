@@ -7,6 +7,7 @@ public class Incremental
 {
     public List<Point> points;
     public List<Tetrahedron> triangulation;
+    public List<Plane> cutP;
 
     private bool debug;
 
@@ -15,6 +16,7 @@ public class Incremental
         points = p;
         debug = d;
         triangulation = new List<Tetrahedron>();
+        cutP = new List<Plane>();
         BowyerWatson( obj_pos,  obj_scale);
     }
     public void BowyerWatson(Vector3 obj_pos, Vector3 obj_scale)
@@ -74,7 +76,6 @@ public class Incremental
                     Debug.DrawLine(f.Point2.getPoint(), f.Point3.getPoint(), new Color(0, 0, 1), 1200f);
                     /************************DEBUG************************/
                 }
-                tetra.getNeighbors(triangulation);
 
             }
         }
@@ -102,17 +103,22 @@ public class Incremental
         var faces = new List<Face>();
         bool n = false;
 
+        // for each tetrahedron in bad tetrahedron list
         foreach (Tetrahedron t in badT)
         {
+            // for each face of the tetrahedron
             foreach (Face f in t.faces)
             {
                 n = false;
+                // check if the face is shared with another tetrahedron in bad tetrahedron list 
                 foreach (Tetrahedron t2 in badT)
                 {
-                    if (t.circumcenter.getPoint().Equals(t2.circumcenter.getPoint())) //if it's not the same tetrahedron
+                    //if it's the same tetrahedron
+                    if (t.circumcenter.getPoint().Equals(t2.circumcenter.getPoint()))
                         break;
+                    
 
-                    foreach(Face f2 in t2.faces)
+                    foreach (Face f2 in t2.faces)
                     {
                         if (f.IsEqual(f2))
                         {
@@ -145,13 +151,29 @@ public class Incremental
         foreach (Tetrahedron tetra in triangulation)
         {
             List<Tetrahedron> n = tetra.getNeighbors(triangulation);
-            /************************DEBUG************************
-            GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            sphere.transform.position = tetra.circumcenter.getPoint();
-            sphere.transform.localScale = new Vector3(Mathf.Sqrt(tetra.circumradius_2)*2, Mathf.Sqrt(tetra.circumradius_2)*2, Mathf.Sqrt(tetra.circumradius_2)*2);
             /************************DEBUG************************/
+            GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            sphere.GetComponent<SphereCollider>().enabled = false;
+
+            sphere.transform.position = tetra.circumcenter.getPoint();
+            //sphere.transform.localScale = new Vector3(Mathf.Sqrt(tetra.circumradius_2), Mathf.Sqrt(tetra.circumradius_2), Mathf.Sqrt(tetra.circumradius_2));
+            sphere.transform.localScale = new Vector3(0.025f,0.025f,0.025f);
+            /************************DEBUG************************/
+
+
+
+
+
+
+
+
             foreach (var i in n)
             {
+                Plane p = new Plane();
+                Vector3 dir = (i.circumcenter.getPoint() - tetra.circumcenter.getPoint()).normalized;
+
+                p.SetNormalAndPosition(dir, tetra.circumcenter.getPoint());
+                cutP.Add(p);
                 Debug.DrawLine(tetra.circumcenter.getPoint(), i.circumcenter.getPoint(), new Color(1, 0, 0), 1200f);
             }
             if (n.Count < 4)
@@ -163,14 +185,20 @@ public class Incremental
                     float y = (tetra.faces[index].Point1.y + tetra.faces[index].Point2.y + tetra.faces[index].Point3.y)/3;
                     float z = (tetra.faces[index].Point1.z + tetra.faces[index].Point2.z + tetra.faces[index].Point3.z)/3;
 
+                    Plane p = new Plane();
                     Vector3 centre = new Vector3(x, y, z);
                     Vector3 dir = (centre - tetra.circumcenter.getPoint()).normalized;
+                    p.SetNormalAndPosition(dir, centre);
+                    cutP.Add(p);
+
                     Debug.DrawRay(tetra.circumcenter.getPoint(), dir, new Color(0, 1, 0), 1200f);
 
                 }
             }
             
         }
+
+        
     }
 
 }

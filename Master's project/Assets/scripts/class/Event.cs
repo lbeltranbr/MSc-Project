@@ -6,14 +6,14 @@ using System.Linq;
 public class Event 
 {
     public Point point;
-    public bool e;
+    public bool isPointEvent;
     public float y;
     public Parabola arch;
 
-    public Event(Point p, bool ev)
+    public Event(Point p, bool e)
     {
         point = p;
-        e = ev;
+        isPointEvent = e;
         y = p.y;
         arch = null;
     }
@@ -26,7 +26,6 @@ public class Event
             return true;
         else
             return false;
-
     }
 
 }

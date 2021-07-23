@@ -7,6 +7,7 @@ public class Face
     public Point Point1;
     public Point Point2;
     public Point Point3;
+    public List<Point> vertices;
     public int id;
 
     public Tetrahedron parent;
@@ -16,6 +17,28 @@ public class Face
         Point2 = point2;
         Point3 = point3;
         parent = p;
+        vertices.Add(point1);
+        vertices.Add(point2);
+        vertices.Add(point3);
+        id = i;
+    }
+    public Face(Point point1, Point point2, Point point3)
+    {
+        Point1 = point1;
+        Point2 = point2;
+        Point3 = point3;
+        vertices.Add(point1);
+        vertices.Add(point2);
+        vertices.Add(point3);
+    }
+    public Face(Point point1, Point point2, Point point3, int i)
+    {
+        Point1 = point1;
+        Point2 = point2;
+        Point3 = point3;
+        vertices.Add(point1);
+        vertices.Add(point2);
+        vertices.Add(point3);
         id = i;
     }
     public bool IsEqual(Face f)

@@ -7,8 +7,7 @@ using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using UnityEngine.UIElements;
 
-namespace Assets.Scripts
-{
+
     /// <summary>
     /// The side of the mesh
     /// </summary>
@@ -606,4 +605,4 @@ namespace Assets.Scripts
             });
         }
     }
-}
+

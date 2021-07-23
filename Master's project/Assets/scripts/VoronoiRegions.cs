@@ -1,18 +1,29 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using System.Text;
+using System.Threading.Tasks;
+using System.Runtime.InteropServices;
+using UnityEngine.UIElements;
 
-public class VoronoiRegions : MonoBehaviour
+
+
+public class SliceObject
 {
-    // Start is called before the first frame update
-    void Start()
+    private Vector3[] vertices;
+    private int[] indices;
+    private Vector3[] normals;
+    private Color32[] colors;
+    /*public GameObject[] Slice(List<Plane> planes, GameObject obj)
     {
-        
-    }
+        Mesh mesh = obj.GetComponent<MeshFilter>().mesh;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+        vertices = mesh.vertices;
+        indices = mesh.triangles;
+        normals = mesh.normals;
+        colors = mesh.colors32;
+
+
+    }*/
 }

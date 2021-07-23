@@ -56,7 +56,7 @@ public class delaunay
 
             ly = e.point.y;
 
-            if (e.e)
+            if (e.isPointEvent)
             {
                 Debug.Log("Site Event");
                 InsertParabola(e.point);
@@ -242,14 +242,14 @@ public class delaunay
         FinishEdge(n.Right());
         n = null;
     }
-    public Parabola GetParabolaByX(float xx)
+    public Parabola GetParabolaByX(float xx)//x point
     {
         Parabola par = root;
         float x = 0.0f;
 
         while (!par.isLeaf) // I walk through the tree until I come across a suitable leaf
         {
-            x = GetXOfEdge(par, ly);
+            x = GetXOfEdge(par, ly); //y axis of current point
             if (x > xx) par = par.Left();
             else par = par.Right();
         }
