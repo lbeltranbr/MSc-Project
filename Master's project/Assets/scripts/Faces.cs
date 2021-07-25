@@ -7,7 +7,7 @@ public class Face
     public Point Point1;
     public Point Point2;
     public Point Point3;
-    public List<Point> vertices;
+    public List<Point> vertices = new List<Point>();
     public int id;
 
     public Tetrahedron parent;

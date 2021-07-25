@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class DivideAndConquer 
 {
@@ -28,29 +29,33 @@ public class DivideAndConquer
 
     public Plane a;
     public List<Point> p1, p2;
-    public List<Face> AFLa, AFL1, AFL2;
+    public List<Tetrahedron> triangulation;
+    Vector3 obj_scale, obj_pos;
 
     private bool debug;
 
-    public DivideAndConquer(List<Point> points, Vector3 obj_pos, Vector3 obj_scale, bool d)
+    public DivideAndConquer(List<Point> points, Vector3 pos, Vector3 scale, bool d)
     {
         a = new Plane();
-        p1 = new List<Point>();
-        p2 = new List<Point>();
+        
+        triangulation = new List<Tetrahedron>();
 
-        AFLa = new List<Face>();
-        AFL1 = new List<Face>();
-        AFL2 = new List<Face>();
+        obj_scale = scale;
+        obj_pos = pos;
 
         debug = d;
 
         List<Face> AFL = new List<Face>();
 
-        DeWall(points, AFL, obj_pos, obj_scale);
+        DeWall(points, AFL);
     }
-    public void DeWall(List<Point> points, List<Face> AFL, Vector3 obj_pos, Vector3 obj_scale)
+    public void DeWall(List<Point> points, List<Face> AFL)
     {
-        SetPlane(obj_pos, obj_scale);
+        List<Face> AFLa = new List<Face>();
+        List<Face> AFL1 = new List<Face>();
+        List<Face> AFL2 = new List<Face>();
+
+        SetPlane(points);
         PointPartition(points);
 
         if (AFL.Count == 0)
@@ -59,9 +64,7 @@ public class DivideAndConquer
             AFL.Add(f);
         }
 
-        AFLa.Clear();
-        AFL1.Clear();
-        AFL2.Clear();
+       
 
         float enter = 0.0f;
 
@@ -79,9 +82,9 @@ public class DivideAndConquer
 
             foreach(Point p in f.vertices)
             {
-                if (p.inP1&&!AFL1.Contains(f))
+                if (p.inP1)
                     AFL1.Add(f);
-                if (!p.inP1&&!AFL2.Contains(f))
+                if (!p.inP1)
                     AFL2.Add(f);
             }
         }
@@ -91,15 +94,59 @@ public class DivideAndConquer
             Face f = AFLa[0];
             AFLa.Remove(f);
 
-            MakeSimplex(f, points);
+            Tetrahedron t = MakeSimplex(f, points);
+            if (t != null)
+            {
+                triangulation.Add(t);
+                foreach (Face f_2 in t.faces)
+                {
+                    Vector3 ab = f.Point2.getPoint() - f.Point1.getPoint();
+                    Vector3 bc = f.Point3.getPoint() - f.Point2.getPoint();
+                    Vector3 ca = f.Point1.getPoint() - f.Point3.getPoint();
+                    Ray r1 = new Ray(f.Point1.getPoint(), ab);
+                    Ray r2 = new Ray(f.Point2.getPoint(), bc);
+                    Ray r3 = new Ray(f.Point3.getPoint(), ca);
+
+                    if (a.Raycast(r1, out enter) || a.Raycast(r2, out enter) || a.Raycast(r3, out enter))
+                        Update(f, AFLa);
+
+                    foreach (Point p in f.vertices)
+                    {
+                        if (p.inP1)
+                            Update(f, AFL1);
+                        if (!p.inP1)
+                            Update(f, AFL2);
+                    }
+                }
+            }
+        }
+        if (AFL1.Count != 0)
+        {
+            DeWall(p1, AFL1);
+
+        }
+        if (AFL2.Count != 0)
+        {
+            DeWall(p2, AFL2);
+
         }
 
 
     }
 
-    public void SetPlane(Vector3 obj_pos, Vector3 obj_scale)
+    public void SetPlane(List<Point> points)
     {
-        Vector3 p = new Vector3((obj_scale.x / 2f) + obj_pos.x, obj_pos.y, (obj_scale.z / 2f) + obj_pos.z);
+        points.OrderBy(o => o.x);
+
+        float max_x = points[0].x;
+        float min_x = points.Last().x;
+
+        points.OrderBy(o => o.z);
+
+        float max_z = points[0].z;
+        float min_z = points.Last().z;
+
+        Vector3 p = new Vector3(((max_x + min_x) / 2f) + obj_pos.x, obj_pos.y, ((max_z + min_z) / 2f) + obj_pos.z);
 
         if (obj_scale.x >= obj_scale.z)
             a.SetNormalAndPosition(new Vector3(1f, 0, 0), p);
@@ -108,7 +155,10 @@ public class DivideAndConquer
     }
     public void PointPartition(List<Point> points)
     {
-        foreach(Point p in points)
+        p1 = new List<Point>();
+        p2 = new List<Point>();
+
+        foreach (Point p in points)
         {
             if (a.GetSide(p.getPoint()))
             {
@@ -126,22 +176,23 @@ public class DivideAndConquer
     public Face MakeFirstSimplex(List<Point> points)
     {
         Point point1, point2, point3;
-        float dist = a.GetDistanceToPoint(points[0].getPoint());
+        float dist = Mathf.Abs(a.GetDistanceToPoint(points[0].getPoint()));
         int index = 0;
         float rad = 0;
         // Selects the point nearest to the plane a
         foreach(Point p in points)
         {
-            float p_dist = a.GetDistanceToPoint(p.getPoint());
+            float p_dist = Mathf.Abs(a.GetDistanceToPoint(p.getPoint()));
             if (p_dist < dist)
             {
                 index = points.IndexOf(p);
                 dist = p_dist;
             }
         }
-        point1 = new Point(points[index].getPoint());
+        point1 = points[index];
 
         // Selects the point nearest to the first point on the other side of the plane
+        index = 0;
 
         if (point1.inP1)
         {
@@ -155,7 +206,7 @@ public class DivideAndConquer
                     dist = p_dist;
                 }
             }
-            point2 = new Point(p2[index].getPoint());
+            point2 = p2[index];
 
         }
         else
@@ -170,9 +221,10 @@ public class DivideAndConquer
                     dist = p_dist;
                 }
             }
-            point2 = new Point(p1[index].getPoint());
+            point2 = p1[index];
 
         }
+        index = 0;
 
         // Selects the point with the min circumradius
         if (point1.inP1)
@@ -181,21 +233,26 @@ public class DivideAndConquer
             Vector3 bc = p2[0].getPoint() - point2.getPoint();
             Vector3 ca = point1.getPoint() - p2[0].getPoint();
 
-            rad = GetCircumradius(ab.magnitude, bc.magnitude, ca.magnitude);
+            rad = 1000000;
 
             foreach (Point p in p2)
             {
-                bc = p.getPoint() - point2.getPoint();
-                ca = point1.getPoint() - p.getPoint();
-
-                float p_rad = GetCircumradius(ab.magnitude, bc.magnitude, ca.magnitude); 
-                if (p_rad < rad)
+               
+                if (!point2.Equals(p))
                 {
-                    index = p2.IndexOf(p);
-                    rad = p_rad;
+                    bc = p.getPoint() - point2.getPoint();
+                    ca = point1.getPoint() - p.getPoint();
+
+                    float p_rad = GetCircumradius(ab.magnitude, bc.magnitude, ca.magnitude);
+                    if (p_rad < rad)
+                    {
+                        index = p2.IndexOf(p);
+                        rad = p_rad;
+                    }
                 }
+              
             }
-            point3 = new Point(p2[index].getPoint());
+            point3 = p2[index];
 
         }
         else
@@ -204,24 +261,32 @@ public class DivideAndConquer
             Vector3 bc = p1[0].getPoint() - point2.getPoint();
             Vector3 ca = point1.getPoint() - p1[0].getPoint();
 
-            rad = GetCircumradius(ab.magnitude, bc.magnitude, ca.magnitude);
+            rad = 100000000;
 
             foreach (Point p in p1)
             {
-                bc = p.getPoint() - point2.getPoint();
-                ca = point1.getPoint() - p.getPoint();
-
-                float p_rad = GetCircumradius(ab.magnitude, bc.magnitude, ca.magnitude);
-                if (p_rad < rad)
+                if (!point2.Equals(p))
                 {
-                    index = p1.IndexOf(p);
-                    rad = p_rad;
+                    bc = p.getPoint() - point2.getPoint();
+                    ca = point1.getPoint() - p.getPoint();
+
+                    float p_rad = GetCircumradius(ab.magnitude, bc.magnitude, ca.magnitude);
+                    if (p_rad < rad)
+                    {
+                        index = p1.IndexOf(p);
+                        rad = p_rad;
+                    }
                 }
             }
-            point3 = new Point(p1[index].getPoint());
-
+            point3 = p1[index];
         }
 
+        /************************DEBUG************************/
+        Debug.DrawLine(point1.getPoint(), point2.getPoint(), new Color(0, 0, 1), 1200f);
+        Debug.DrawLine(point1.getPoint(), point3.getPoint(), new Color(0, 0, 1), 1200f);
+        Debug.DrawLine(point2.getPoint(), point3.getPoint(), new Color(0, 0, 1), 1200f);
+
+        /************************DEBUG************************/
         return new Face(point1, point2, point3, 0);
     }
 
@@ -239,11 +304,56 @@ public class DivideAndConquer
 
     public float GetCircumradius( float dist_ab,  float dist_bc,  float dist_ca)
     {
+        float a = dist_ab * dist_bc * dist_ca;
+        float b = Mathf.Sqrt(((dist_ab + dist_bc + dist_ca) * (dist_bc + dist_ca - dist_ab) * (dist_ca + dist_ab - dist_bc) * (dist_ab + dist_bc - dist_ca)));
+
         return ((dist_ab* dist_bc * dist_ca) / Mathf.Sqrt(((dist_ab + dist_bc + dist_ca)*(dist_bc + dist_ca - dist_ab)*(dist_ca + dist_ab - dist_bc)*(dist_ab + dist_bc - dist_ca))));
     }
 
-    public void MakeSimplex(Face f, List<Point> p)
+    public Tetrahedron MakeSimplex(Face f, List<Point> p)
     {
+        // REVISE THIS
+       /* Vector3 ab = f.Point2.getPoint() - f.Point1.getPoint();
+        Vector3 ac = f.Point3.getPoint() - f.Point1.getPoint();
 
+        float dot = Vector3.Dot(ab, ac);
+        Vector3 bisectionPos = (f.Point1.getPoint() + (ab * dot));
+
+        /************************DEBUG************************
+        GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        sphere.GetComponent<SphereCollider>().enabled = false;
+
+        sphere.transform.localScale = new Vector3(0.025f, 0.025f, 0.025f);
+        sphere.transform.position = new Vector3(bisectionPos.x, bisectionPos.y, bisectionPos.z);
+        /************************DEBUG************************
+
+        Plane halfPlane = new Plane(f.Point3.getPoint() - bisectionPos, bisectionPos);
+        */
+
+        Tetrahedron t = new Tetrahedron(f.Point1, f.Point2, f.Point3, p[0]);
+        float rad = t.circumradius_2;
+        int index = 0;
+
+        foreach (Point point in p)
+        {
+            t = new Tetrahedron(f.Point1, f.Point2, f.Point3, point);
+            float p_rad = t.circumradius_2;
+            if (p_rad < rad)
+            {
+                index = p.IndexOf(point);
+                rad = p_rad;
+            }
+        }
+
+        return new Tetrahedron(f.Point1, f.Point2, f.Point3, p[index]);
     }
+
+    public void Update(Face f, List<Face> f_list)
+    {
+        if (f_list.Contains(f))
+            f_list.Remove(f);
+        else
+            f_list.Add(f);
+    }
+
 }
