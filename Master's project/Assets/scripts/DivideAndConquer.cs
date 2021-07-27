@@ -30,7 +30,7 @@ public class DivideAndConquer
     public Plane a;
     public List<Point> p1, p2;
     public List<Tetrahedron> triangulation;
-    Vector3 obj_scale, obj_pos;
+    Vector3 obj_scale, obj_pos, plane_point;
 
     private bool debug;
 
@@ -64,33 +64,31 @@ public class DivideAndConquer
             AFL.Add(f);
         }
 
-       
 
-        float enter = 0.0f;
+        //float enter = 0.0f;
 
         foreach (Face f in AFL)
         {
             Vector3 ab = f.Point2.getPoint() - f.Point1.getPoint();
             Vector3 bc = f.Point3.getPoint() - f.Point2.getPoint();
             Vector3 ca = f.Point1.getPoint() - f.Point3.getPoint();
-            Ray r1 = new Ray(f.Point1.getPoint(), ab);
+           /* Ray r1 = new Ray(f.Point1.getPoint(), ab);
             Ray r2 = new Ray(f.Point2.getPoint(), bc);
-            Ray r3 = new Ray(f.Point3.getPoint(), ca);
+            Ray r3 = new Ray(f.Point3.getPoint(), ca);*/
 
-            if (a.Raycast(r1, out enter) || a.Raycast(r2, out enter) || a.Raycast(r3, out enter))
+            if (LinePlaneIntersection(f.Point1.getPoint(), ab, plane_point, a.normal) || LinePlaneIntersection(f.Point2.getPoint(), bc, plane_point, a.normal) || LinePlaneIntersection(f.Point3.getPoint(), ca, plane_point, a.normal))
                 AFLa.Add(f);
 
-            foreach(Point p in f.vertices)
-            {
-                if (p.inP1)
-                    AFL1.Add(f);
-                if (!p.inP1)
-                    AFL2.Add(f);
-            }
+            if (f.vertices[0].inP1 && f.vertices[1].inP1 && f.vertices[2].inP1)
+                Update(f, AFL1);
+            if (!f.vertices[0].inP1 && !f.vertices[1].inP1 && !f.vertices[2].inP1)
+                Update(f, AFL2);
         }
 
         while (AFLa.Count != 0)
         {
+            if (triangulation.Count > 10)
+               return;
             Face f = AFLa[0];
             AFLa.Remove(f);
 
@@ -98,35 +96,41 @@ public class DivideAndConquer
             if (t != null)
             {
                 triangulation.Add(t);
-                foreach (Face f_2 in t.faces)
+                
+                foreach (Face f2 in t.faces)
                 {
-                    Vector3 ab = f.Point2.getPoint() - f.Point1.getPoint();
-                    Vector3 bc = f.Point3.getPoint() - f.Point2.getPoint();
-                    Vector3 ca = f.Point1.getPoint() - f.Point3.getPoint();
-                    Ray r1 = new Ray(f.Point1.getPoint(), ab);
-                    Ray r2 = new Ray(f.Point2.getPoint(), bc);
-                    Ray r3 = new Ray(f.Point3.getPoint(), ca);
-
-                    if (a.Raycast(r1, out enter) || a.Raycast(r2, out enter) || a.Raycast(r3, out enter))
-                        Update(f, AFLa);
-
-                    foreach (Point p in f.vertices)
+                    if (!f.IsEqual(f2))
                     {
-                        if (p.inP1)
-                            Update(f, AFL1);
-                        if (!p.inP1)
-                            Update(f, AFL2);
+                        Vector3 ab = f2.Point2.getPoint() - f2.Point1.getPoint();
+                        Vector3 bc = f2.Point3.getPoint() - f2.Point2.getPoint();
+                        Vector3 ca = f2.Point1.getPoint() - f2.Point3.getPoint();
+                        /* Ray r1 = new Ray(f.Point1.getPoint(), ab);
+                         Ray r2 = new Ray(f.Point2.getPoint(), bc);
+                         Ray r3 = new Ray(f.Point3.getPoint(), ca);*/
+
+                        //if (a.Raycast(r1, out enter) || a.Raycast(r2, out enter) || a.Raycast(r3, out enter))
+                        if (LinePlaneIntersection(f.Point1.getPoint(), ab, plane_point, a.normal) || LinePlaneIntersection(f.Point2.getPoint(), bc, plane_point, a.normal) || LinePlaneIntersection(f.Point3.getPoint(), ca, plane_point, a.normal))
+                            Update(f2, AFLa);
+
+                        if(f2.vertices[0].inP1 && f2.vertices[1].inP1 && f2.vertices[2].inP1)
+                            Update(f2, AFL1);
+                        if (!f2.vertices[0].inP1 && !f2.vertices[1].inP1 && !f2.vertices[2].inP1)
+                            Update(f2, AFL2);
+
                     }
+                
                 }
             }
         }
         if (AFL1.Count != 0)
         {
+        
             DeWall(p1, AFL1);
 
         }
         if (AFL2.Count != 0)
         {
+            
             DeWall(p2, AFL2);
 
         }
@@ -136,17 +140,15 @@ public class DivideAndConquer
 
     public void SetPlane(List<Point> points)
     {
-        points.OrderBy(o => o.x);
 
-        float max_x = points[0].x;
-        float min_x = points.Last().x;
+        float max_x = points.Max(o => o.x);
+        float min_x = points.Min(o => o.x);
 
-        points.OrderBy(o => o.z);
-
-        float max_z = points[0].z;
-        float min_z = points.Last().z;
+        float max_z = points.Max(o => o.z);
+        float min_z = points.Min(o => o.z);
 
         Vector3 p = new Vector3(((max_x + min_x) / 2f) + obj_pos.x, obj_pos.y, ((max_z + min_z) / 2f) + obj_pos.z);
+        plane_point = p;
 
         if (obj_scale.x >= obj_scale.z)
             a.SetNormalAndPosition(new Vector3(1f, 0, 0), p);
@@ -330,22 +332,30 @@ public class DivideAndConquer
         Plane halfPlane = new Plane(f.Point3.getPoint() - bisectionPos, bisectionPos);
         */
 
-        Tetrahedron t = new Tetrahedron(f.Point1, f.Point2, f.Point3, p[0]);
-        float rad = t.circumradius_2;
-        int index = 0;
+        //Tetrahedron t = new Tetrahedron(f.Point1, f.Point2, f.Point3, p[0]);
+        float rad = 1000000000;
+        int index = -1;
 
         foreach (Point point in p)
         {
-            t = new Tetrahedron(f.Point1, f.Point2, f.Point3, point);
-            float p_rad = t.circumradius_2;
-            if (p_rad < rad)
+            if (!point.Equals(f.Point1)&& !point.Equals(f.Point2) && !point.Equals(f.Point3))
             {
-                index = p.IndexOf(point);
-                rad = p_rad;
+                Tetrahedron t = new Tetrahedron(f.Point1, f.Point2, f.Point3, point);
+                float p_rad = t.circumradius_2;
+                if (p_rad < rad)
+                {
+                    index = p.IndexOf(point);
+                    rad = p_rad;
+                }
             }
+
+               
         }
 
-        return new Tetrahedron(f.Point1, f.Point2, f.Point3, p[index]);
+        if (index == -1)
+            return null;
+        else
+            return new Tetrahedron(f.Point1, f.Point2, f.Point3, p[index]);
     }
 
     public void Update(Face f, List<Face> f_list)
@@ -354,6 +364,21 @@ public class DivideAndConquer
             f_list.Remove(f);
         else
             f_list.Add(f);
+    }
+
+    public bool LinePlaneIntersection(Vector3 start, Vector3 dir, Vector3 plane_p, Vector3 normal)
+    {
+        float D = Vector3.Dot(normal, dir);
+        float N = -Vector3.Dot(normal, start - plane_p);
+
+        if (Mathf.Abs(D) < .000001f)
+            return false;
+
+        float sI = N / D;
+        if (sI< 0 || sI> 1)
+            return false;
+
+        return true;
     }
 
 }

@@ -800,6 +800,8 @@ MonoBehaviour:
   pointsAmount: 5
   container: {fileID: 1138852862}
   debug: 1
+  DivideAndConquer: 1
+  IncrementalAlgorithm: 0
 --- !u!65 &1478278917
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -944,6 +946,8 @@ MonoBehaviour:
   pointsAmount: 5
   container: {fileID: 1138852862}
   debug: 0
+  DivideAndConquer: 0
+  IncrementalAlgorithm: 0
 --- !u!65 &1580740373
 BoxCollider:
   m_ObjectHideFlags: 0

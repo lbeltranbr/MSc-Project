@@ -31,12 +31,12 @@ public class Tetrahedron
         CalculateCircumcenter();
 
         /************************DEBUG************************/
-        Debug.DrawLine(p1.getPoint(), p2.getPoint(), new Color(0, 0, 0),60f);
-        Debug.DrawLine(p1.getPoint(), p3.getPoint(), new Color(0, 0, 0),60f);
-        Debug.DrawLine(p2.getPoint(), p3.getPoint(), new Color(0, 0, 0),60f);
-        Debug.DrawLine(p2.getPoint(), p4.getPoint(), new Color(0, 0, 0),60f);
-        Debug.DrawLine(p3.getPoint(), p4.getPoint(), new Color(0, 0, 0),60f);
-        Debug.DrawLine(p4.getPoint(), p1.getPoint(), new Color(0, 0, 0),60f);
+        Debug.DrawLine(p1.getPoint(), p2.getPoint(), new Color(0, 0, 0),1200f);
+        Debug.DrawLine(p1.getPoint(), p3.getPoint(), new Color(0, 0, 0),1200f);
+        Debug.DrawLine(p2.getPoint(), p3.getPoint(), new Color(0, 0, 0),1200f);
+        Debug.DrawLine(p2.getPoint(), p4.getPoint(), new Color(0, 0, 0),1200f);
+        Debug.DrawLine(p3.getPoint(), p4.getPoint(), new Color(0, 0, 0),1200f);
+        Debug.DrawLine(p4.getPoint(), p1.getPoint(), new Color(0, 0, 0),1200f);
         /************************DEBUG************************/
 
     }
