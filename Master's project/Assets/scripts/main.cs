@@ -67,17 +67,17 @@ public class main : MonoBehaviour
 
         points = new List<Point>();
         color_points = new List<Vector4>();
-/*/*/
-        points.Add(new Point(0.5f, 0.95f, 0));
-        points.Add(new Point(-0.1f, 0.8f, -0.1f));
-        points.Add(new Point(0.3f, 0.6f, 0.1f));
-        points.Add(new Point(-0.4f, 0.1f, 0.4f));
-        points.Add(new Point(0, 0.2f, -0.4f));
+
+        /*points.Add(new Point(0.5f, 0.95f, 0,0));
+        points.Add(new Point(-0.1f, 0.8f, -0.1f,1));
+        points.Add(new Point(0.3f, 0.6f, 0.1f,2));
+        points.Add(new Point(-0.4f, 0.1f, 0.4f,3));
+        points.Add(new Point(0, 0.2f, -0.4f,4));*/
 
         for (int i = 0; i < pointsAmount; i++)
         {
             
-           // points.Add(new Point(Random.Range(-transform.localScale.x / 2, transform.localScale.x / 2) + transform.position.x, Random.Range(-transform.localScale.y / 2, transform.localScale.y / 2) + transform.position.y, Random.Range(-transform.localScale.z / 2, transform.localScale.z / 2) + transform.position.z));
+            points.Add(new Point(Random.Range(-transform.localScale.x / 2, transform.localScale.x / 2) + transform.position.x, Random.Range(-transform.localScale.y / 2, transform.localScale.y / 2) + transform.position.y, Random.Range(-transform.localScale.z / 2, transform.localScale.z / 2) + transform.position.z,i));
 
             if (debug)
             {

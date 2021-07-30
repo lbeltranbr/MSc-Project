@@ -61,4 +61,18 @@ public class Face
 
         return false;
     }
+    public Vector3 CalculateCentroid()
+    {
+        return new Vector3((Point1.x + Point2.x + Point3.x) / 3, (Point1.y + Point2.y + Point3.y) / 3, (Point1.z + Point2.z + Point3.z) / 3);
+    }
+
+    public void ReverseFace(Face f)
+    {
+        Vector3 index;
+
+        index = f.Point1.getPoint();
+        f.Point1.SetP(f.Point2.getPoint());
+        f.Point2.SetP(index);
+
+    }
 }
