@@ -4,20 +4,20 @@ using UnityEngine;
 
 public class Maths 
 {
-   /* public bool LinePlaneIntersection(Vector3 start, Vector3 dir, Vector3 plane_p, Vector3 normal)
+    public static Point LinePlaneIntersection(Line line, Vector3 plane_p, Vector3 normal)
     {
-        float D = Vector3.Dot(normal, dir);
-        float N = -Vector3.Dot(normal, start - plane_p);
+        float t = -Vector3.Dot(plane_p, normal) + Vector3.Dot(line.start.getPoint(), normal);
+        float t1 = Vector3.Dot(line.direction.getPoint(), normal);
 
-        if (Mathf.Abs(D) < .000001f)
-            return false;
+        if (Mathf.Abs(t1) < .000001f)
+            return null;
 
-        float sI = N / D;
-        if (sI < 0 || sI > 1)
-            return false;
+        t = -(t / t1);
+        Vector3 p = line.start.getPoint() + line.direction.getPoint() * t;
 
-        return true;
-    }*/
+        return new Point(p);
+
+    }
 
     public static Plane CalcMiddlePlane(Point p1, Point p2)
     {
@@ -27,18 +27,21 @@ public class Maths
         return new Plane(p.normalized, m);
     }
 
+    public static Vector3 GetPointofMiddlePlane(Point p1, Point p2)
+    {
+        Vector3 m = (p1.getPoint() + p2.getPoint()) / 2;
+
+        return m;
+    }
     public static Point CalcPlaneIntersection(Plane p1, Plane p2, Plane p3)
     {
-        var det = Vector3.Dot(Vector3.Cross(p1.normal, p2.normal), p3.normal);
-        if (det < 0.000001)
-        {
-            return null;
-        }
+        var det = Vector3.Dot(p1.normal, Vector3.Cross( p2.normal, p3.normal));
 
-       Vector3 intersectionPoint =
-            (-(p1.distance * Vector3.Cross(p2.normal, p3.normal)) -
-            (p2.distance * Vector3.Cross(p3.normal, p1.normal)) -
-            (p3.distance * Vector3.Cross(p1.normal, p2.normal))) / det;
+        if (det < 0.000001)
+            return null;
+        
+
+        Vector3 intersectionPoint = (-(p1.distance * Vector3.Cross(p2.normal, p3.normal)) - (p2.distance * Vector3.Cross(p3.normal, p1.normal)) - (p3.distance * Vector3.Cross(p1.normal, p2.normal))) / det;
 
         return new Point(intersectionPoint);
 

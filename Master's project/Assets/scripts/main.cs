@@ -12,6 +12,7 @@ public class main : MonoBehaviour
     public int pointsAmount;
     public GameObject container;
     public bool debug;
+    public bool random;
     public bool DivideAndConquer;
     public bool IncrementalAlgorithm;
 
@@ -32,30 +33,24 @@ public class main : MonoBehaviour
 
         if (DivideAndConquer)
         {
-            IncrementalAlgorithm = false;
+           // IncrementalAlgorithm = false;
             dewall = new DivideAndConquer(points, transform.position, transform.localScale, debug);
             List<Tetrahedron> t = dewall.triangulation;
+            CalculateVCell(dewall.triangulation);
         }
         if (IncrementalAlgorithm)
         {
-            DivideAndConquer = false;
+          //  DivideAndConquer = false;
             incremental = new Incremental(points, transform.position, transform.localScale, debug);
+            CalculateVCell(incremental.triangulation);
         }
-        //incremental.CalculateVCell();
-        //slices = Slicer.Slice(incremental.cutP[0], gameObject);
 
-        /* foreach (var i in incremental.cutP)
-             slices = Slicer.Slice(i, gameObject);*/
+         foreach (var i in cutP)
+             slices = Slicer.Slice(i, gameObject);
 
-        //Destroy(gameObject);
-
-        //sweep = new Sweep(points, transform.position, transform.localScale, debug);
-
+        Destroy(gameObject);
 
     }
-
-    // Update is called once per frame
-   
 
     public void getPoints()
     {
@@ -68,16 +63,26 @@ public class main : MonoBehaviour
         points = new List<Point>();
         color_points = new List<Vector4>();
 
-        /*points.Add(new Point(0.5f, 0.95f, 0,0));
-        points.Add(new Point(-0.1f, 0.8f, -0.1f,1));
-        points.Add(new Point(0.3f, 0.6f, 0.1f,2));
-        points.Add(new Point(-0.4f, 0.1f, 0.4f,3));
-        points.Add(new Point(0, 0.2f, -0.4f,4));*/
+        if (!random)
+        {
+            /*points.Add(new Point(0.5f, 0.95f, 0, 0));
+            points.Add(new Point(-0.1f, 0.8f, -0.1f, 1));
+            points.Add(new Point(0.3f, 0.6f, 0.1f, 2));
+            points.Add(new Point(-0.4f, 0.1f, 0.4f, 3));
+            points.Add(new Point(0, 0.2f, -0.4f, 4)); */
+            points.Add(new Point(-0.47f, 0.9f, -0.3f, 0));
+            points.Add(new Point(-0.19f, 0.41f, 0.21f, 1));
+            points.Add(new Point(0.02f, 0.83f, 0.3f, 2));
+            points.Add(new Point(0.04f, 0.01f, -0.43f, 3));
+            points.Add(new Point(-0.01f, 0.01f, -0.5f, 4));
+            pointsAmount = 5;
+        }
+       
 
         for (int i = 0; i < pointsAmount; i++)
         {
-            
-            points.Add(new Point(Random.Range(-transform.localScale.x / 2, transform.localScale.x / 2) + transform.position.x, Random.Range(-transform.localScale.y / 2, transform.localScale.y / 2) + transform.position.y, Random.Range(-transform.localScale.z / 2, transform.localScale.z / 2) + transform.position.z,i));
+            if (random)
+                points.Add(new Point(Random.Range(-transform.localScale.x / 2, transform.localScale.x / 2) + transform.position.x, Random.Range(-transform.localScale.y / 2, transform.localScale.y / 2) + transform.position.y, Random.Range(-transform.localScale.z / 2, transform.localScale.z / 2) + transform.position.z,i));
 
             if (debug)
             {

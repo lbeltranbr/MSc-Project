@@ -68,9 +68,8 @@ public class Face
 
     public void ReverseFace(Face f)
     {
-        Vector3 index;
+        Vector3 index = f.Point1.getPoint();
 
-        index = f.Point1.getPoint();
         f.Point1.SetP(f.Point2.getPoint());
         f.Point2.SetP(index);
 

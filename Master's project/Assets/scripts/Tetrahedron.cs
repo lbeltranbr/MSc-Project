@@ -19,9 +19,9 @@ public class Tetrahedron
 
         
         faces.Add(new Face(p1, p2, p3, this,0));
-        faces.Add(new Face(p2, p3, p4, this,1));
-        faces.Add(new Face(p3, p4, p1, this,2));
-        faces.Add(new Face(p4, p1, p2, this,3));
+        faces.Add(new Face(p1, p4, p3, this,1));
+        faces.Add(new Face(p3, p4, p2, this,2));
+        faces.Add(new Face(p2, p4, p1, this,3));
 
         nosharedfaces.Add(0);
         nosharedfaces.Add(1);
