@@ -1,10 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Text;
-using System.Threading.Tasks;
-using System.Runtime.InteropServices;
-using UnityEngine.UIElements;
+using System.Linq;
+
+
 
 public class main : MonoBehaviour
 {
@@ -15,6 +14,7 @@ public class main : MonoBehaviour
     public bool random;
     public bool DivideAndConquer;
     public bool IncrementalAlgorithm;
+    public bool cut;
 
     private DivideAndConquer dewall;
     private Incremental incremental;
@@ -22,7 +22,7 @@ public class main : MonoBehaviour
     private List<Point> points;
     private List<Vector4> color_points;
 
-    private GameObject[] slices;
+    private GameObject[] s;
     private List<Plane> cutP;
 
     void Start()
@@ -45,10 +45,23 @@ public class main : MonoBehaviour
             CalculateVCell(incremental.triangulation);
         }
 
-         foreach (var i in cutP)
-             slices = Slicer.Slice(i, gameObject);
+        if (cut)
+        {
 
-        Destroy(gameObject);
+            /*GameObject g = gameObject;
+            foreach (var i in cutP)
+            {
+                s = SliceObj.Slice(i, g);
+
+                g = s[1];
+            }*/
+            s = SliceObj.Slice(cutP[0], gameObject);
+
+            //Debug.Log(cutP[0].normal);
+
+            Destroy(gameObject);
+        }
+        
 
     }
 
@@ -122,14 +135,17 @@ public class main : MonoBehaviour
             /************************DEBUG************************/
 
 
+
             foreach (var i in n)
             {
                 Plane p = new Plane();
                 Vector3 dir = (i.circumcenter.getPoint() - tetra.circumcenter.getPoint()).normalized;
-
-                p.SetNormalAndPosition(dir, tetra.circumcenter.getPoint());
+                float z = -(dir.x + dir.y) / dir.z;
+                Vector3 p_normal = new Vector3(1,1,z);
+                p.SetNormalAndPosition(dir, i.circumcenter.getPoint());
                 cutP.Add(p);
-                Debug.DrawLine(tetra.circumcenter.getPoint(), i.circumcenter.getPoint(), new Color(1, 0, 0), 1200f);
+
+                Debug.DrawLine(tetra.circumcenter.getPoint(), i.circumcenter.getPoint(), new Color(0, 1, 0), 1200f);
             }
             if (n.Count < 4)
             {

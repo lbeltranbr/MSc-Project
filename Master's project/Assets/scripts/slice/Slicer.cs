@@ -12,7 +12,7 @@ using UnityEngine.Rendering;
         /// <param name="plane"></param>
         /// <param name="objectToCut"></param>
         /// <returns></returns>
-        public static GameObject[] Slice(Plane plane, GameObject objectToCut)
+    /*    public static GameObject[] Slice(Plane plane, GameObject objectToCut)
         {            
             //Get the current mesh and its verts and tris
             Mesh mesh = objectToCut.GetComponent<MeshFilter>().mesh;
@@ -89,6 +89,6 @@ using UnityEngine.Rendering;
 
             var rb = gameObject.AddComponent<Rigidbody>();
             rb.useGravity = useGravity;
-        }
+        }*/
     }
 

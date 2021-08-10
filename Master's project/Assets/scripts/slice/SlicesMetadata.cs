@@ -11,11 +11,11 @@ using UnityEngine.UIElements;
     /// <summary>
     /// The side of the mesh
     /// </summary>
-    public enum MeshSide
+  /*  public enum MeshSide
     {
         Positive = 0,
         Negative = 1
-    }
+    }*/
 
     /// <summary>
     /// An object used to manage the positive and negative side mesh data for a sliced object
