@@ -33,7 +33,7 @@ public class DivideAndConquer
     Vector3 obj_scale, obj_pos, plane_point;
 
     private bool debug;
-
+    private int count_id = 0;
     public DivideAndConquer(List<Point> points, Vector3 pos, Vector3 scale, bool d)
     {
         a = new Plane();
@@ -65,6 +65,8 @@ public class DivideAndConquer
             AFL.Add(t.faces[1]);
             AFL.Add(t.faces[2]);
             AFL.Add(t.faces[3]);
+            t.id = count_id;
+            count_id++;
             triangulation.Add(t);
 
         }
@@ -98,8 +100,8 @@ public class DivideAndConquer
             AFLa.Remove(f);
 
             Tetrahedron t = MakeSimplex(f, points);
-            if(t==null)
-                Debug.Log("tetrahedron is null");
+            /*if(t==null)
+                Debug.Log("tetrahedron is null");*/
             
             if (t != null)
             {
@@ -110,9 +112,11 @@ public class DivideAndConquer
                     Debug.LogError("Cyclic Tetrahedra Creation");
                     return;
                 }
-
+                t.id = count_id;
                 triangulation.Add(t);
-                
+                if (debug)
+                    t.DrawTetra();
+                count_id++;
                 foreach (Face f2 in t.faces)
                 {
                     if (!f.IsEqual(f2))

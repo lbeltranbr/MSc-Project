@@ -32,7 +32,7 @@ public class Incremental
                      
         Tetrahedron s_t = new Tetrahedron(new Point(2 * obj_pos.x - s.x, -s.y / 2, -s.z), new Point(s.x, -s.y / 2, -s.z), new Point(obj_pos.x, -s.y / 2, s.z), new Point(obj_pos.x, s.y, obj_pos.z));
         triangulation.Add(s_t);
-
+        s_t.DrawTetra();
         foreach (var it in points)
         {
             var badTetrahedron = FindBadTetrahedron(it, triangulation); //if point is inside sphere, then that tetrahedron is bad
@@ -50,7 +50,7 @@ public class Incremental
 
         foreach (Tetrahedron tetra in triangulation.ToList())
         {
-
+            tetra.id = triangulation.FindIndex(0,o=>o.Equals(tetra));
             foreach(Face f in tetra.faces)
             {
                 if (CheckFace(f, s_t))
@@ -66,14 +66,15 @@ public class Incremental
         {
             foreach (Tetrahedron tetra in triangulation)
             {
-                foreach (Face f in tetra.faces)
+                tetra.DrawTetra();
+                /*foreach (Face f in tetra.faces)
                 {
-                    /************************DEBUG************************/
+                    /************************DEBUG************************
                     Debug.DrawLine(f.Point1.getPoint(), f.Point2.getPoint(), new Color(0, 0, 1), 1200f);
                     Debug.DrawLine(f.Point1.getPoint(), f.Point3.getPoint(), new Color(0, 0, 1), 1200f);
                     Debug.DrawLine(f.Point2.getPoint(), f.Point3.getPoint(), new Color(0, 0, 1), 1200f);
-                    /************************DEBUG************************/
-                }
+                    /************************DEBUG************************
+                }*/
 
             }
         }

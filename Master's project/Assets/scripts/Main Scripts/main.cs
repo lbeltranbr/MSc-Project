@@ -13,7 +13,7 @@ public class main : MonoBehaviour
     public bool debug;
     public bool random;
     public bool DivideAndConquer;
-    public bool IncrementalAlgorithm;
+    public bool IncrementalAlgorithm = true;
     public bool cut;
 
     private DivideAndConquer dewall;
@@ -25,43 +25,45 @@ public class main : MonoBehaviour
     private GameObject[] s;
     private List<Plane> cutP;
 
+    private List<Vector4> verts;
+    private List<Vector4> verts_color;
+
+
     void Start()
     {
        
         getPoints();
         cutP = new List<Plane>();
-
+        verts_color = new List<Vector4>();
+        verts = new List<Vector4>();
         if (DivideAndConquer)
         {
-           // IncrementalAlgorithm = false;
-            dewall = new DivideAndConquer(points, transform.position, transform.localScale, debug);
+            // IncrementalAlgorithm = false;
+            dewall = new DivideAndConquer(points, gameObject.GetComponent<BoxCollider>().center + transform.position, gameObject.GetComponent<BoxCollider>().size, debug);
             List<Tetrahedron> t = dewall.triangulation;
             CalculateVCell(dewall.triangulation);
         }
         if (IncrementalAlgorithm)
         {
-          //  DivideAndConquer = false;
-            incremental = new Incremental(points, transform.position, transform.localScale, debug);
+            //  DivideAndConquer = false;
+            Debug.Log(gameObject.GetComponent<BoxCollider>().size);
+            incremental = new Incremental(points, gameObject.GetComponent<BoxCollider>().center + transform.position, gameObject.GetComponent<BoxCollider>().size, debug);
             CalculateVCell(incremental.triangulation);
+
+           /* gameObject.GetComponent<Renderer>().material.SetInt("_pointsAmount", verts.Count);
+
+            for (int i = 0; i < verts.Count; i++)
+                verts_color.Add(new Vector4(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f), 1f));
+
+            gameObject.GetComponent<Renderer>().material.SetVectorArray("_pointPos", verts);
+            gameObject.GetComponent<Renderer>().material.SetVectorArray("_colorPoint", verts_color);*/
         }
 
         if (cut)
         {
-
-            /*GameObject g = gameObject;
-            foreach (var i in cutP)
-            {
-                s = SliceObj.Slice(i, g);
-
-                g = s[1];
-            }*/
             s = SliceObj.Slice(cutP[0], gameObject);
-
-            //Debug.Log(cutP[0].normal);
-
             Destroy(gameObject);
         }
-        
 
     }
 
@@ -95,11 +97,14 @@ public class main : MonoBehaviour
         for (int i = 0; i < pointsAmount; i++)
         {
             if (random)
-                points.Add(new Point(Random.Range(-transform.localScale.x / 2, transform.localScale.x / 2) + transform.position.x, Random.Range(-transform.localScale.y / 2, transform.localScale.y / 2) + transform.position.y, Random.Range(-transform.localScale.z / 2, transform.localScale.z / 2) + transform.position.z,i));
+                points.Add(new Point(Random.Range(-gameObject.GetComponent<BoxCollider>().size.x / 2, gameObject.GetComponent<BoxCollider>().size.x / 2) + gameObject.GetComponent<BoxCollider>().center.x+transform.position.x,
+                    Random.Range(-gameObject.GetComponent<BoxCollider>().size.y / 2, gameObject.GetComponent<BoxCollider>().size.y / 2) + gameObject.GetComponent<BoxCollider>().center.y + transform.position.y,
+                    Random.Range(-gameObject.GetComponent<BoxCollider>().size.z / 2, gameObject.GetComponent<BoxCollider>().size.z / 2) + gameObject.GetComponent<BoxCollider>().center.z + transform.position.z,i));
 
             if (debug)
             {
                 color_points.Add(new Vector4(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f), 1f));
+
                 renderPoints(i);
             }
 
@@ -121,31 +126,40 @@ public class main : MonoBehaviour
 
     public void CalculateVCell(List<Tetrahedron> triangulation)
     {
-
         foreach (Tetrahedron tetra in triangulation)
         {
+            verts.Add(tetra.circumcenter.getPoint());
+
+            Debug.Log(tetra.vertices[0].id.ToString() + tetra.vertices[1].id.ToString() + tetra.vertices[2].id.ToString() + tetra.vertices[3].id.ToString());
+            Debug.Log(tetra.id);
+            Debug.Log(tetra.circumcenter.getPoint());
+           
             List<Tetrahedron> n = tetra.getNeighbors(triangulation);
-            /************************DEBUG************************/
-            GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            sphere.GetComponent<SphereCollider>().enabled = false;
 
-            sphere.transform.position = tetra.circumcenter.getPoint();
-            //sphere.transform.localScale = new Vector3(Mathf.Sqrt(tetra.circumradius_2), Mathf.Sqrt(tetra.circumradius_2), Mathf.Sqrt(tetra.circumradius_2));
-            sphere.transform.localScale = new Vector3(0.025f, 0.025f, 0.025f);
-            /************************DEBUG************************/
+            if (debug)
+            {
+                /************************DEBUG************************/
+                GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                sphere.GetComponent<SphereCollider>().enabled = false;
 
-
+                sphere.transform.position = tetra.circumcenter.getPoint();
+                //sphere.transform.localScale = new Vector3(Mathf.Sqrt(tetra.circumradius_2), Mathf.Sqrt(tetra.circumradius_2), Mathf.Sqrt(tetra.circumradius_2));
+                sphere.transform.localScale = new Vector3(0.025f, 0.025f, 0.025f);
+                /************************DEBUG************************/
+            }
 
             foreach (var i in n)
             {
+                //Debug.Log(i.vertices[0].id.ToString() + i.vertices[1].id.ToString() + i.vertices[2].id.ToString() + i.vertices[3].id.ToString());
+
                 Plane p = new Plane();
                 Vector3 dir = (i.circumcenter.getPoint() - tetra.circumcenter.getPoint()).normalized;
                 float z = -(dir.x + dir.y) / dir.z;
                 Vector3 p_normal = new Vector3(1,1,z);
                 p.SetNormalAndPosition(dir, i.circumcenter.getPoint());
                 cutP.Add(p);
-
-                Debug.DrawLine(tetra.circumcenter.getPoint(), i.circumcenter.getPoint(), new Color(0, 1, 0), 1200f);
+                if(debug)
+                    Debug.DrawLine(tetra.circumcenter.getPoint(), i.circumcenter.getPoint(), new Color(0, 1, 0), 1200f);
             }
             if (n.Count < 4)
             {
@@ -158,11 +172,17 @@ public class main : MonoBehaviour
 
                     Plane p = new Plane();
                     Vector3 centre = new Vector3(x, y, z);
+
+                    Debug.Log("c"+centre);
+
                     Vector3 dir = (centre - tetra.circumcenter.getPoint()).normalized;
+                    float z2 = -(dir.x + dir.y) / dir.z;
+                    Debug.Log("z" + z2);
+
                     p.SetNormalAndPosition(dir, centre);
                     cutP.Add(p);
-
-                    Debug.DrawRay(tetra.circumcenter.getPoint(), dir, new Color(0, 1, 0), 1200f);
+                    if(debug)
+                        Debug.DrawRay(tetra.circumcenter.getPoint(), dir, new Color(0, 1, 0), 1200f);
 
                 }
             }

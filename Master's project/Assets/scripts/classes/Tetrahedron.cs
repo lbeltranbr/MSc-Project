@@ -10,6 +10,7 @@ public class Tetrahedron
     public List<Face> faces = new List<Face>();
     public bool isBad = false;
     public List<int> nosharedfaces = new List<int>();
+    public int id;
     public Tetrahedron(Point p1, Point p2, Point p3, Point p4)
     {
         vertices[0] = p1;
@@ -29,15 +30,6 @@ public class Tetrahedron
         nosharedfaces.Add(3);
 
         CalculateCircumcenter();
-
-        /************************DEBUG************************/
-        Debug.DrawLine(p1.getPoint(), p2.getPoint(), new Color(0, 0, 0),1200f);
-        Debug.DrawLine(p1.getPoint(), p3.getPoint(), new Color(0, 0, 0),1200f);
-        Debug.DrawLine(p2.getPoint(), p3.getPoint(), new Color(0, 0, 0),1200f);
-        Debug.DrawLine(p2.getPoint(), p4.getPoint(), new Color(0, 0, 0),1200f);
-        Debug.DrawLine(p3.getPoint(), p4.getPoint(), new Color(0, 0, 0),1200f);
-        Debug.DrawLine(p4.getPoint(), p1.getPoint(), new Color(0, 0, 0),1200f);
-        /************************DEBUG************************/
 
     }
     public void CalculateCircumcenter()
@@ -113,6 +105,17 @@ public class Tetrahedron
 
     }
 
+    public void DrawTetra()
+    {
+        /************************DEBUG************************/
+        Debug.DrawLine(vertices[0].getPoint(), vertices[1].getPoint(), new Color(0, 0, 0), 1200f);
+        Debug.DrawLine(vertices[0].getPoint(), vertices[2].getPoint(), new Color(0, 0, 0), 1200f);
+        Debug.DrawLine(vertices[1].getPoint(), vertices[2].getPoint(), new Color(0, 0, 0), 1200f);
+        Debug.DrawLine(vertices[1].getPoint(), vertices[3].getPoint(), new Color(0, 0, 0), 1200f);
+        Debug.DrawLine(vertices[2].getPoint(), vertices[3].getPoint(), new Color(0, 0, 0), 1200f);
+        Debug.DrawLine(vertices[3].getPoint(), vertices[0].getPoint(), new Color(0, 0, 0), 1200f);
+        /************************DEBUG************************/
+    }
 
-
+    
 }

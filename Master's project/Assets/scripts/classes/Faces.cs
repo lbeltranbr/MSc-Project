@@ -7,6 +7,7 @@ public class Face
     public Point Point1;
     public Point Point2;
     public Point Point3;
+    public List<Edges> edges = new List<Edges>();
     public List<Point> vertices = new List<Point>();
     public int id;
 
@@ -20,6 +21,11 @@ public class Face
         vertices.Add(point1);
         vertices.Add(point2);
         vertices.Add(point3);
+
+        edges.Add(new Edges(point1, point2));
+        edges.Add(new Edges(point2, point3));
+        edges.Add(new Edges(point3, point1));
+
         id = i;
     }
     public Face(Point point1, Point point2, Point point3)

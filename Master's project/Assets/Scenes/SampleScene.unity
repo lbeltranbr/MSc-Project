@@ -239,7 +239,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &381986333
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -791,12 +791,12 @@ GameObject:
   - component: {fileID: 1478278921}
   - component: {fileID: 1478278922}
   m_Layer: 0
-  m_Name: test
+  m_Name: CubeThest
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1478278916
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -813,8 +813,8 @@ MonoBehaviour:
   container: {fileID: 1138852862}
   debug: 1
   random: 1
-  DivideAndConquer: 1
-  IncrementalAlgorithm: 0
+  DivideAndConquer: 0
+  IncrementalAlgorithm: 1
   cut: 0
 --- !u!65 &1478278917
 BoxCollider:
@@ -917,14 +917,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1478278915}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa7ff031450961941ae8f64443977135, type: 3}
+  m_Script: {fileID: 11500000, guid: 27b572798dff55b48b23f1e4444671f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _isSolid: 1
-  _reverseWindTriangles: 0
-  _useGravity: 1
-  _shareVertices: 0
-  _smoothVertices: 0
+  useGravity: 1
+  isKinematic: 1
 --- !u!1 &1641348758
 GameObject:
   m_ObjectHideFlags: 0
