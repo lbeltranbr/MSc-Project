@@ -1,8 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class Maths 
+public class Maths
 {
     public static Point LinePlaneIntersection(Line line, Vector3 plane_p, Vector3 normal)
     {
@@ -35,11 +33,11 @@ public class Maths
     }
     public static Point CalcPlaneIntersection(Plane p1, Plane p2, Plane p3)
     {
-        var det = Vector3.Dot(p1.normal, Vector3.Cross( p2.normal, p3.normal));
+        var det = Vector3.Dot(p1.normal, Vector3.Cross(p2.normal, p3.normal));
 
         if (det < 0.000001)
             return null;
-        
+
 
         Vector3 intersectionPoint = (-(p1.distance * Vector3.Cross(p2.normal, p3.normal)) - (p2.distance * Vector3.Cross(p3.normal, p1.normal)) - (p3.distance * Vector3.Cross(p1.normal, p2.normal))) / det;
 

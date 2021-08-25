@@ -1,0 +1,67 @@
+TIME IS MEASURED IN MILISECONDS
+
+LOW POLY:	36
+MED POLY:	840
+HIGH POLY:	46272
+
+
+Time to generate 5 points low:	00:00:00.0027456
+Time to generate low incremental:	00:00:00.0095643
+Time to generate low d&c:	00:00:00.0165475
+
+
+Time to generate 5 points med:	00:00:00.0000271
+Time to generate medium incremental:	00:00:00.0011517
+Time to generate medium d&c:	00:00:00.0063935
+
+
+Time to generate 5 points high:	00:00:00.0000528
+Time to generate high incremental:	00:00:00.0015794
+Time to generate high d&c:	00:00:00.0033534
+
+
+Time to generate 10 points low:	00:00:00.0000301
+Time to generate low incremental:	00:00:00.0181523
+Time to generate low d&c:	00:00:00.0146149
+
+
+Time to generate 10 points med:	00:00:00.0000298
+Time to generate medium incremental:	00:00:00.0219444
+Time to generate medium d&c:	00:00:00.0168034
+
+
+Time to generate 10 points high:	00:00:00.0000305
+Time to generate high incremental:	00:00:00.0044895
+Time to generate high d&c:	00:00:00.0064108
+
+
+Time to generate 15 points low:	00:00:00.0000410
+Time to generate low incremental:	00:00:00.1484043
+Time to generate low d&c:	00:00:00.0060699
+
+
+Time to generate 15 points med:	00:00:00.0000395
+Time to generate medium incremental:	00:00:00.0405888
+Time to generate medium d&c:	00:00:00.0168911
+
+
+Time to generate 15 points high:	00:00:00.0000400
+Time to generate high incremental:	00:00:00.2727371
+Time to generate high d&c:	00:00:00.0267795
+
+
+Time to generate 20 points low:	00:00:00.0000511
+Time to generate low incremental:	00:00:01.5091397
+Time to generate low d&c:	00:00:00.0858190
+
+
+Time to generate 20 points med:	00:00:00.0000514
+Time to generate medium incremental:	00:00:01.9302713
+Time to generate medium d&c:	00:00:00.0231091
+
+
+Time to generate 20 points high:	00:00:00.0000514
+Time to generate high incremental:	00:00:00.0002726
+Time to generate high d&c:	00:00:00.0413112
+
+

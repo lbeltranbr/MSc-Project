@@ -1,5 +1,5 @@
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
 
 
 public class test : MonoBehaviour
@@ -14,7 +14,7 @@ public class test : MonoBehaviour
         Vector3[] normals = mesh.normals;
 
         List<Vector3> v = new List<Vector3>();
-       
+
         foreach (var i in vertices)
         {
             if (!v.Contains(i))
@@ -23,6 +23,6 @@ public class test : MonoBehaviour
         foreach (var i in v)
             Debug.Log(i);
     }
-   
+
 
 }

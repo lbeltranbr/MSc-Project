@@ -1,14 +1,12 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;
 
 public enum MeshSide
 {
     Positive = 0,
     Negative = 1
 }
-public class SliceData 
+public class SliceData
 {
     private Mesh pSideM;
     private List<Vector3> pSideV;
@@ -326,7 +324,7 @@ public class SliceData
             }
         }
 
-                JoinPointsAlongPlane();
+        JoinPointsAlongPlane();
 
 
     }
@@ -369,5 +367,5 @@ public class SliceData
         return flippedNormals;
     }
 
-    
+
 }

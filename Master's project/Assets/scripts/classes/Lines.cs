@@ -1,7 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
 public class Line
 {
     public Point start;
@@ -12,7 +8,7 @@ public class Line
         start = s;
         end = e;
         direction = dir;
-    } 
+    }
     public Line(Point s, Point dir)
     {
         start = s;

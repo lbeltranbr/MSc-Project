@@ -1,13 +1,12 @@
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using System.Linq;
+using UnityEngine;
 
-public class DivideAndConquer 
+public class DivideAndConquer
 {
 
     /*
-    Compute the convex hull of the given points, P (or use the verts themselves)
+   
 
     Compute the cutting plane, a (take the average of all numbers along an axis)
 
@@ -31,13 +30,14 @@ public class DivideAndConquer
     public List<Point> p1, p2;
     public List<Tetrahedron> triangulation;
     Vector3 obj_scale, obj_pos, plane_point;
+    public bool cyclic;
 
     private bool debug;
     private int count_id = 0;
     public DivideAndConquer(List<Point> points, Vector3 pos, Vector3 scale, bool d)
     {
         a = new Plane();
-        
+        cyclic = false;
         triangulation = new List<Tetrahedron>();
 
         obj_scale = scale;
@@ -47,35 +47,65 @@ public class DivideAndConquer
 
         List<Face> AFL = new List<Face>();
 
-        DeWall(points, AFL, 0);
+        triangulation = DeWall(points, AFL, 0);
     }
-    public void DeWall(List<Point> points, List<Face> AFL, int axis)
+    public DivideAndConquer(List<Point> points, Vector3 pos, Vector3 scale, bool d, string path)
+    {
+        a = new Plane();
+
+        triangulation = new List<Tetrahedron>();
+
+        obj_scale = scale;
+        obj_pos = pos;
+
+        debug = d;
+
+        List<Face> AFL = new List<Face>();
+
+        triangulation = DeWall(points, AFL, 0);
+    }
+    public List<Tetrahedron> DeWall(List<Point> points, List<Face> AFL, int axis)
     {
         List<Face> AFLa = new List<Face>();
         List<Face> AFL1 = new List<Face>();
         List<Face> AFL2 = new List<Face>();
+        List<Tetrahedron> sigma = new List<Tetrahedron>();
 
-        SetPlane(points,axis);
+        if (points.Count == 1)
+        {
+            return sigma;
+        }
+
+        SetPlane(points, axis);
         PointPartition(points);
 
         if (AFL.Count == 0)
         {
             Tetrahedron t = MakeFirstSimplex(points);
+
+            Vector3 i = t.faces[0].Point1.getPoint();
+            int id = t.faces[0].Point1.id;
+            t.faces[0].Point1.SetP(t.faces[0].Point2.getPoint());
+            t.faces[0].Point1.id = t.faces[0].Point2.id;
+            t.faces[0].Point2.SetP(i);
+            t.faces[0].Point2.id = id;
+            //Debug.Log("invert face: " + point1.id.ToString() + point2.id.ToString() + point3.id.ToString());
+
             AFL.Add(t.faces[0]);
             AFL.Add(t.faces[1]);
             AFL.Add(t.faces[2]);
             AFL.Add(t.faces[3]);
             t.id = count_id;
             count_id++;
-            triangulation.Add(t);
-
+            //triangulation.Add(t);
+            sigma.Add(t);
+            t.DrawTetra();
         }
 
         foreach (Face f in AFL)
         {
             if (a.GetSide(f.Point1.getPoint()) != a.GetSide(f.Point2.getPoint()) || a.GetSide(f.Point1.getPoint()) != a.GetSide(f.Point3.getPoint()))
             {
-                Debug.Log("Face " + f.Point1.id.ToString() + f.Point2.id.ToString() + f.Point3.id.ToString() + " is intersected by a");
                 AFLa.Add(f);
             }
             else
@@ -83,12 +113,10 @@ public class DivideAndConquer
                 if (a.GetSide(f.vertices[0].getPoint()))
                 {
                     AFL1.Add(f);
-                    Debug.Log("Face " + f.Point1.id.ToString() + f.Point2.id.ToString() + f.Point3.id.ToString() + " is in AFL1");
                 }
                 else
                 {
                     AFL2.Add(f);
-                    Debug.Log("Face " + f.Point1.id.ToString() + f.Point2.id.ToString() + f.Point3.id.ToString() + " is in AFL2");
 
                 }
             }
@@ -100,42 +128,44 @@ public class DivideAndConquer
             AFLa.Remove(f);
 
             Tetrahedron t = MakeSimplex(f, points);
-            /*if(t==null)
-                Debug.Log("tetrahedron is null");*/
-            
+            if (t != null && isInTriangulation(t, sigma))
+            {
+                /*cyclic=true;
+				break;*/
+                List<Point> pts = points;
+                pts.Remove(t.vertices[3]);
+                t = MakeSimplex(f, pts);
+            }
+
             if (t != null)
             {
-                Debug.Log("tetrahedron is not null");
 
-                if (isInTriangulation(t))
-                {
-                    Debug.LogError("Cyclic Tetrahedra Creation");
-                    return;
-                }
+
                 t.id = count_id;
-                triangulation.Add(t);
+                //triangulation.Add(t);
+                sigma.Add(t);
+
                 if (debug)
                     t.DrawTetra();
+
                 count_id++;
+
                 foreach (Face f2 in t.faces)
                 {
                     if (!f.IsEqual(f2))
                     {
-                        if (a.GetSide(f2.Point1.getPoint())!= a.GetSide(f2.Point2.getPoint())|| a.GetSide(f2.Point1.getPoint()) != a.GetSide(f2.Point3.getPoint()))
+                        if (a.GetSide(f2.Point1.getPoint()) != a.GetSide(f2.Point2.getPoint()) || a.GetSide(f2.Point1.getPoint()) != a.GetSide(f2.Point3.getPoint()))
                         {
-                            Debug.Log("Face " + f2.Point1.id.ToString() + f2.Point2.id.ToString() + f2.Point3.id.ToString() + " is intersected by a");
                             Update(f2, AFLa);
                         }
                         else
                         {
                             if (a.GetSide(f2.vertices[0].getPoint()))
                             {
-                                Debug.Log("Face " + f2.Point1.id.ToString() + f2.Point2.id.ToString() + f2.Point3.id.ToString() + " is in AFL1");
                                 Update(f2, AFL1);
                             }
                             else
                             {
-                                Debug.Log("Face " + f2.Point1.id.ToString() + f2.Point2.id.ToString() + f2.Point3.id.ToString() + " is in AFL2");
                                 Update(f2, AFL2);
                             }
                         }
@@ -143,59 +173,70 @@ public class DivideAndConquer
                 }
             }
         }
-        Debug.Log("Calling DeWall again or exit");
+
+        if (cyclic)
+            return null;
 
         if (axis == 0)
         {
             if (AFL1.Count != 0)
-                DeWall(p1, AFL1,1);
+                sigma.Union(DeWall(p1, AFL1, 1)).ToList();
             if (AFL2.Count != 0)
-                DeWall(p2, AFL2,1);
+                sigma.Union(DeWall(p2, AFL2, 1)).ToList();
+
         }
         if (axis == 1)
         {
             if (AFL1.Count != 0)
-                DeWall(p1, AFL1, 2);
+                sigma.Union(DeWall(p1, AFL1, 2)).ToList();
             if (AFL2.Count != 0)
-                DeWall(p2, AFL2, 2);
+                sigma.Union(DeWall(p2, AFL2, 2)).ToList();
+
         }
         if (axis == 2)
         {
             if (AFL1.Count != 0)
-                DeWall(p1, AFL1, 0);
+                sigma.Union(DeWall(p1, AFL1, 0)).ToList();
             if (AFL2.Count != 0)
-                DeWall(p2, AFL2, 0);
+                sigma.Union(DeWall(p2, AFL2, 0)).ToList();
         }
+        return sigma;
     }
 
     public void SetPlane(List<Point> points, int axis)
     {
+        Debug.Log(points.Count);
+        Debug.Log(points[0].id);
+        Vector3 p;
+
+
         List<Point> plist = points.ToList();
         plist.OrderBy(o => o.x);
 
-        float max_x = plist[plist.Count/2].x;
-        float min_x = plist[plist.Count/2 - 1].x;
+        float max_x = plist[plist.Count / 2].x;
+        float min_x = plist[plist.Count / 2 - 1].x;
 
         plist.OrderBy(o => o.y);
 
-        float max_y = plist[plist.Count/2].y;
-        float min_y = plist[plist.Count/2 - 1].y;
+        float max_y = plist[plist.Count / 2].y;
+        float min_y = plist[plist.Count / 2 - 1].y;
 
         plist.OrderBy(o => o.z);
 
-        float max_z = plist[plist.Count/2].z;
-        float min_z = plist[plist.Count/2 - 1].z;
+        float max_z = plist[plist.Count / 2].z;
+        float min_z = plist[plist.Count / 2 - 1].z;
 
 
-        Vector3 p = new Vector3(((max_x + min_x) / 2f), ((max_y + min_y) / 2f), ((max_z + min_z) / 2f));
+        p = new Vector3(((max_x + min_x) / 2f), ((max_y + min_y) / 2f), ((max_z + min_z) / 2f));
         plane_point = p;
+
+
         if (axis == 0)
             a.SetNormalAndPosition(new Vector3(1f, 0, 0), p);
         if (axis == 1)
             a.SetNormalAndPosition(new Vector3(0, 1f, 0), p);
         if (axis == 2)
             a.SetNormalAndPosition(new Vector3(0, 0, 1f), p);
-        Debug.Log("Alpha: " + "m= " + p + " p= " + a.normal);
 
     }
     public void PointPartition(List<Point> points)
@@ -207,15 +248,13 @@ public class DivideAndConquer
         {
             if (a.GetSide(p.getPoint()))
             {
-                Debug.Log("Point " + p.id.ToString() + " is in P1");
-                p.inP1 = true;
+
                 p1.Add(p); //positive side of the plane
             }
             else
             {
-                Debug.Log("Point " + p.id.ToString() + " is in P2");
 
-                p.inP1 = false;
+
                 p2.Add(p); //negative side of the plane
             }
         }
@@ -264,7 +303,7 @@ public class DivideAndConquer
 
         //*************POINT 3*************//
         // Selects the point with the min circumradius
-     
+
         Vector3 ab = point2.getPoint() - point1.getPoint();
         Vector3 bc = points[0].getPoint() - point2.getPoint();
         Vector3 ca = point1.getPoint() - points[0].getPoint();
@@ -273,7 +312,7 @@ public class DivideAndConquer
 
         foreach (Point p in points)
         {
-               
+
             if (!point1.Equals(p) && !point2.Equals(p))
             {
                 bc = p.getPoint() - point2.getPoint();
@@ -286,7 +325,7 @@ public class DivideAndConquer
                     rad = p_rad;
                 }
             }
-              
+
         }
         point3 = points[index];
         Debug.Log("third point " + point3.id);
@@ -295,11 +334,8 @@ public class DivideAndConquer
         //*************POINT 4*************//
 
         Plane pl = new Plane(point1.getPoint(), point2.getPoint(), point3.getPoint());
-        Debug.Log("Plane normal: " + pl.normal.ToString());
 
         Line l = Maths.CalcLine(point1, point2, point3);
-        Debug.Log("line for 4th point: " + l.start.getPoint().ToString() + "+ t " + l.direction.getPoint().ToString());
-        //float enter = 0.0f;
 
         rad = 1000000000;
         index = -1;
@@ -309,15 +345,11 @@ public class DivideAndConquer
             if (!point.Equals(point1) && !point.Equals(point2) && !point.Equals(point3))
             {
                 Plane halfplane = Maths.CalcMiddlePlane(point, point1);
-                Debug.Log("halfplane for points " + point1.id.ToString() + "-" + point.id.ToString() + " m= " + Maths.GetPointofMiddlePlane(point, point1).ToString() + " p= " + halfplane.normal.ToString());
 
                 Point c = Maths.LinePlaneIntersection(l, Maths.GetPointofMiddlePlane(point, point1), halfplane.normal);
-                if (c == null)
-                    Debug.Log("intersection between halfplane and line does not exist");
-                if (c!=null)
-                {
-                    Debug.Log("center point is " + c.getPoint().ToString());
 
+                if (c != null)
+                {
                     float p_rad = Vector3.Distance(c.getPoint(), point.getPoint());
 
                     if (p_rad < rad)
@@ -330,7 +362,6 @@ public class DivideAndConquer
             }
         }
         Debug.Log("4th point " + points[index].id);
-        Debug.Log(" face: " + point1.id.ToString() + point2.id.ToString() + point3.id.ToString());
 
         if (!pl.GetSide(points[index].getPoint()))
         {
@@ -343,16 +374,14 @@ public class DivideAndConquer
             point2.SetP(i);
             point2.id = id;
             Debug.Log("invert face: " + point1.id.ToString() + point2.id.ToString() + point3.id.ToString());
-
         }
 
         if (index == -1)
             return null;
         else
         {
-            Debug.Log("tetrahedron: " + point2.id.ToString() + point1.id.ToString() + point3.id.ToString() + points[index].id.ToString());
-            return new Tetrahedron(point2, point1, point3, points[index]);
-
+            Debug.Log("tetrahedron: " + point1.id.ToString() + point2.id.ToString() + point3.id.ToString() + points[index].id.ToString());
+            return new Tetrahedron(point1, point2, point3, points[index]);
         }
 
     }
@@ -369,45 +398,34 @@ public class DivideAndConquer
         return (a * (b + c - a) * point1.getPoint() + b * (c + a - b) * point2.getPoint() + c * (a + b - c) * point3.getPoint()) / (a * (b + c - a) + b * (c + a - b) + c * (a + b - c));
     }
 
-    public float GetCircumradius( float dist_ab,  float dist_bc,  float dist_ca)
+    public float GetCircumradius(float dist_ab, float dist_bc, float dist_ca)
     {
         float a = dist_ab * dist_bc * dist_ca;
         float b = Mathf.Sqrt(((dist_ab + dist_bc + dist_ca) * (dist_bc + dist_ca - dist_ab) * (dist_ca + dist_ab - dist_bc) * (dist_ab + dist_bc - dist_ca)));
 
-        return ((dist_ab* dist_bc * dist_ca) / Mathf.Sqrt(((dist_ab + dist_bc + dist_ca)*(dist_bc + dist_ca - dist_ab)*(dist_ca + dist_ab - dist_bc)*(dist_ab + dist_bc - dist_ca))));
+        return ((dist_ab * dist_bc * dist_ca) / Mathf.Sqrt(((dist_ab + dist_bc + dist_ca) * (dist_bc + dist_ca - dist_ab) * (dist_ca + dist_ab - dist_bc) * (dist_ab + dist_bc - dist_ca))));
     }
 
     public Tetrahedron MakeSimplex(Face f, List<Point> p)
     {
-        Debug.Log("Make simplex for face: " + f.Point1.id.ToString() + f.Point2.id.ToString() + f.Point3.id.ToString());
         Plane pl = new Plane(f.Point1.getPoint(), f.Point2.getPoint(), f.Point3.getPoint());
-        Debug.Log("Plane normal: " + pl.normal.ToString());
 
         Line l = Maths.CalcLine(f.Point1, f.Point2, f.Point3);
-        Debug.Log("line for face " + f.Point1.id.ToString() + f.Point2.id.ToString() + f.Point3.id.ToString()+" : " + l.start.getPoint().ToString() + "+ t " + l.direction.getPoint().ToString());
-
-        //float enter = 0.0f;
 
         float rad = 1000000000;
         int index = -1;
 
         foreach (Point point in p)
         {
-            if (!point.Equals(f.Point1)&& !point.Equals(f.Point2) && !point.Equals(f.Point3) && !pl.GetSide(point.getPoint()))
+            if (!point.Equals(f.Point1) && !point.Equals(f.Point2) && !point.Equals(f.Point3) && pl.GetSide(point.getPoint()))
             {
-                Debug.Log("point "+ point.id.ToString() + " is in the right side of the 3 points plane ");
 
                 Plane halfplane = Maths.CalcMiddlePlane(point, f.Point1);
 
-                Debug.Log("halfplane for points " + f.Point1.id.ToString() + "-" + point.id.ToString() + " m= " + Maths.GetPointofMiddlePlane(point, f.Point1).ToString() + " p= " + halfplane.normal.ToString());
-
                 Point c = Maths.LinePlaneIntersection(l, Maths.GetPointofMiddlePlane(point, f.Point1), halfplane.normal);
-                if (c == null)
-                    Debug.Log("intersection between halfplane and line does not exist");
-                if (c!=null)
-                {
-                    Debug.Log("center point is " + c.getPoint().ToString());
 
+                if (c != null)
+                {
                     float p_rad = Vector3.Distance(c.getPoint(), point.getPoint());
 
                     if (!pl.GetSide(c.getPoint()))
@@ -423,7 +441,6 @@ public class DivideAndConquer
         }
         if (index == -1)
         {
-            Debug.Log("4rth point is NULL");
             return null;
         }
         else
@@ -437,7 +454,7 @@ public class DivideAndConquer
     {
         bool inList = false;
 
-        foreach(Face face in f_list.ToList())
+        foreach (Face face in f_list.ToList())
         {
             if (face.IsEqual(f))
             {
@@ -449,7 +466,7 @@ public class DivideAndConquer
 
         if (!inList)
             f_list.Add(f);
-            
+
     }
 
     public bool IntersectPositive(Plane p, Face f)
@@ -459,11 +476,11 @@ public class DivideAndConquer
         else
             return false;
     }
-    public bool isInTriangulation(Tetrahedron t)
+    public bool isInTriangulation(Tetrahedron t, List<Tetrahedron> s)
     {
         int count = 0;
 
-        foreach(Tetrahedron tet in triangulation)
+        foreach (Tetrahedron tet in s)
         {
             count = 0;
 

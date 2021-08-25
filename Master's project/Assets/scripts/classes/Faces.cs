@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,7 +6,7 @@ public class Face
     public Point Point1;
     public Point Point2;
     public Point Point3;
-    public List<Edges> edges = new List<Edges>();
+    public List<Line> edges = new List<Line>();
     public List<Point> vertices = new List<Point>();
     public int id;
 
@@ -22,9 +21,9 @@ public class Face
         vertices.Add(point2);
         vertices.Add(point3);
 
-        edges.Add(new Edges(point1, point2));
-        edges.Add(new Edges(point2, point3));
-        edges.Add(new Edges(point3, point1));
+        edges.Add(new Line(point1, point2));
+        edges.Add(new Line(point2, point3));
+        edges.Add(new Line(point3, point1));
 
         id = i;
     }
@@ -49,7 +48,7 @@ public class Face
     }
     public bool IsEqual(Face f)
     {
-        if (f == null) 
+        if (f == null)
             return false;
 
         if (Point1 == f.Point1 && Point2 == f.Point3 && Point3 == f.Point2)

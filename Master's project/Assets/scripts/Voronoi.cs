@@ -15,11 +15,11 @@ public class Voronoi : MonoBehaviour
     }
     private void Update()
     {
-        
-        if(grayScale)
-            gameObject.GetComponent<Renderer>().material.SetInt("_change",1);
+
+        if (grayScale)
+            gameObject.GetComponent<Renderer>().material.SetInt("_change", 1);
         else
-            gameObject.GetComponent<Renderer>().material.SetInt("_change",0);
+            gameObject.GetComponent<Renderer>().material.SetInt("_change", 0);
 
     }
 
@@ -30,13 +30,13 @@ public class Voronoi : MonoBehaviour
             Destroy(child.gameObject);
         }
         gameObject.GetComponent<Renderer>().material.SetInt("_pointsAmount", pointsAmount);
-    
+
         points = new List<Vector4>();
         color_points = new List<Vector4>();
 
         for (int i = 0; i < pointsAmount; i++)
         {
-            points.Add(new Vector4(Random.Range(-transform.localScale.x / 2, transform.localScale.x / 2)+transform.position.x, Random.Range(-transform.localScale.y / 2, transform.localScale.y/2)+transform.position.y, Random.Range(-transform.localScale.z / 2, transform.localScale.z / 2)+transform.position.z, 0));
+            points.Add(new Vector4(Random.Range(-transform.localScale.x / 2, transform.localScale.x / 2) + transform.position.x, Random.Range(-transform.localScale.y / 2, transform.localScale.y / 2) + transform.position.y, Random.Range(-transform.localScale.z / 2, transform.localScale.z / 2) + transform.position.z, 0));
             color_points.Add(new Vector4(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f), 1f));
 
             GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);

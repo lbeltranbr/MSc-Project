@@ -1,13 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Point
 {
     public float x, y, z;
-    public bool inP1;
     public int id;
-    public Point(float xpos,float ypos, float zpos)
+    public Point(float xpos, float ypos, float zpos)
     {
         x = xpos;
         y = ypos;
@@ -25,8 +22,8 @@ public class Point
         x = p.x;
         y = p.y;
         z = p.z;
-    }   
-    public Point(Vector3 p, int i )
+    }
+    public Point(Vector3 p, int i)
     {
         x = p.x;
         y = p.y;
@@ -45,5 +42,5 @@ public class Point
         y = p.y;
         z = p.z;
     }
-  
+
 }

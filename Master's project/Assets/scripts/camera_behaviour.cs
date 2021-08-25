@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class camera_behaviour : MonoBehaviour
@@ -12,7 +10,7 @@ public class camera_behaviour : MonoBehaviour
 
     void Update()
     {
-         
+
         if (Input.GetMouseButton(1))
         {
             yaw += speed * Input.GetAxis("Mouse X");
@@ -26,11 +24,11 @@ public class camera_behaviour : MonoBehaviour
             transform.position += transform.right * -Input.GetAxisRaw("Mouse X") * Time.deltaTime * speed;
             transform.position += transform.up * -Input.GetAxisRaw("Mouse Y") * Time.deltaTime * speed;
         }
-        
+
 
         if (Input.GetAxis("Mouse ScrollWheel") != 0)
         {
-            transform.position += scrollSpeed * Input.GetAxis("Mouse ScrollWheel")*transform.forward;
+            transform.position += scrollSpeed * Input.GetAxis("Mouse ScrollWheel") * transform.forward;
         }
     }
 }

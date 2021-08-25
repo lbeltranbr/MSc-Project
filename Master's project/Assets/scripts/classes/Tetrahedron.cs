@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -18,11 +17,11 @@ public class Tetrahedron
         vertices[2] = p3;
         vertices[3] = p4;
 
-        
-        faces.Add(new Face(p1, p2, p3, this,0));
-        faces.Add(new Face(p1, p4, p3, this,1));
-        faces.Add(new Face(p3, p4, p2, this,2));
-        faces.Add(new Face(p2, p4, p1, this,3));
+
+        faces.Add(new Face(p1, p2, p3, this, 0));
+        faces.Add(new Face(p1, p4, p3, this, 1));
+        faces.Add(new Face(p3, p4, p2, this, 2));
+        faces.Add(new Face(p2, p4, p1, this, 3));
 
         nosharedfaces.Add(0);
         nosharedfaces.Add(1);
@@ -57,11 +56,11 @@ public class Tetrahedron
         //circumradius_2 = (dx * dx + dy * dy + dz * dz - 4 * a * g) / (4*a*a);
 
     }
- 
+
 
     public bool IsPointInsideSphere(Point p)
     {
-        float d_2 = (p.x - circumcenter.x) * (p.x - circumcenter.x) + (p.y - circumcenter.y) * (p.y - circumcenter.y) + (p.z - circumcenter.z) * (p.z - circumcenter.z);            
+        float d_2 = (p.x - circumcenter.x) * (p.x - circumcenter.x) + (p.y - circumcenter.y) * (p.y - circumcenter.y) + (p.z - circumcenter.z) * (p.z - circumcenter.z);
         return d_2 < circumradius_2;
     }
 
@@ -71,11 +70,11 @@ public class Tetrahedron
         List<Tetrahedron> neighbors = new List<Tetrahedron>();
         int count = 0;
         bool b = false;
-        foreach(Tetrahedron tet in t)
+        foreach (Tetrahedron tet in t)
         {
             if (count == 4)
                 break;
-            
+
             if (!tet.circumcenter.getPoint().Equals(circumcenter.getPoint())) //if it's not the same tetrahedron
             {
                 foreach (Face f0 in tet.faces)
@@ -99,23 +98,23 @@ public class Tetrahedron
                     }
                 }
             }
-           
+
         }
-            return neighbors;
+        return neighbors;
 
     }
 
     public void DrawTetra()
     {
         /************************DEBUG************************/
-        Debug.DrawLine(vertices[0].getPoint(), vertices[1].getPoint(), new Color(0, 0, 0), 1200f);
-        Debug.DrawLine(vertices[0].getPoint(), vertices[2].getPoint(), new Color(0, 0, 0), 1200f);
-        Debug.DrawLine(vertices[1].getPoint(), vertices[2].getPoint(), new Color(0, 0, 0), 1200f);
-        Debug.DrawLine(vertices[1].getPoint(), vertices[3].getPoint(), new Color(0, 0, 0), 1200f);
-        Debug.DrawLine(vertices[2].getPoint(), vertices[3].getPoint(), new Color(0, 0, 0), 1200f);
-        Debug.DrawLine(vertices[3].getPoint(), vertices[0].getPoint(), new Color(0, 0, 0), 1200f);
+        Debug.DrawLine(vertices[0].getPoint(), vertices[1].getPoint(), new Color(0, 0, 0), 30f);
+        Debug.DrawLine(vertices[0].getPoint(), vertices[2].getPoint(), new Color(0, 0, 0), 30f);
+        Debug.DrawLine(vertices[1].getPoint(), vertices[2].getPoint(), new Color(0, 0, 0), 30f);
+        Debug.DrawLine(vertices[1].getPoint(), vertices[3].getPoint(), new Color(0, 0, 0), 30f);
+        Debug.DrawLine(vertices[2].getPoint(), vertices[3].getPoint(), new Color(0, 0, 0), 30f);
+        Debug.DrawLine(vertices[3].getPoint(), vertices[0].getPoint(), new Color(0, 0, 0), 30f);
         /************************DEBUG************************/
     }
 
-    
+
 }
