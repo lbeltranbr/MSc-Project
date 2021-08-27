@@ -65,7 +65,7 @@ public class SliceObj
 
         var rb = gameObject.AddComponent<Rigidbody>();
         rb.useGravity = useGravity;
-        rb.isKinematic = isKinematic;
+        rb.isKinematic = true;
 
         gameObject.GetComponent<Renderer>().material.SetColor("_Color", new Vector4(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f), 1f));
 

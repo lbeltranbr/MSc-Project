@@ -205,8 +205,7 @@ public class DivideAndConquer
 
     public void SetPlane(List<Point> points, int axis)
     {
-        Debug.Log(points.Count);
-        Debug.Log(points[0].id);
+       
         Vector3 p;
 
 

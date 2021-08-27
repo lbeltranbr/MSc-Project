@@ -1,6 +1,6 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
-
 
 public class main : MonoBehaviour
 {
@@ -22,13 +22,11 @@ public class main : MonoBehaviour
     private List<Vector4> color_points;
 
     private GameObject[] s;
-
+    private List<Plane> cutP;
 
     void Start()
     {
-
         ExecuteCode();
-
     }
 
     public void ExecuteCode()
@@ -36,8 +34,9 @@ public class main : MonoBehaviour
         clearContainer();
 
         getPoints();
+
         List<Tetrahedron> t = new List<Tetrahedron>();
-       
+
 
         switch (index)
         {
@@ -55,12 +54,42 @@ public class main : MonoBehaviour
 
         if (cut)
         {
+            getDividingPlanes();
+            /*
+            for (int i = 0; i < cutP.Count; i++)
+            {
+                if (i == 0)
+                {
+                    s = SliceObj.Slice(cutP[i], gameObject);
+                }
+                else
+                {
+                    if (cutP[i].distance > 0)
+                    {
+                        Destroy(s[0].gameObject);
+                        s = SliceObj.Slice(cutP[i], s[0].gameObject);
+                    }
+
+                    if (cutP[i].distance < 0)
+                    {
+                        Destroy(s[1].gameObject);
+                        s = SliceObj.Slice(cutP[i], s[1].gameObject);
+                    }
+                }
+
+                if (s[0].GetComponent<MeshFilter>().mesh.triangles.Length == 0)
+                    Destroy(s[0].gameObject);
+                if (s[1].GetComponent<MeshFilter>().mesh.triangles.Length == 0)
+                    Destroy(s[1].gameObject);
+
+            }*/
+            //SliceObj.Slice()
             Destroy(gameObject);
         }
     }
     public void getPoints()
     {
-       
+
         points = new List<Point>();
         color_points = new List<Vector4>();
 
@@ -116,8 +145,87 @@ public class main : MonoBehaviour
         {
             DestroyImmediate(container.transform.GetChild(0).gameObject);
         }
+    }
+    public void getDividingPlanes()
+    {
+        Point v = points[0];
+        v.CalculateVoronoiCell();
+        cutP = new List<Plane>();
+        //List<Plane> temp = new List<Plane>();
 
+        List<Point> neighbours = new List<Point>();
+        foreach (Point n in v.neighbours)
+        {
+            n.CalculateVoronoiCell();
+            neighbours.AddRange(n.neighbours);
+        }
+
+        neighbours = neighbours.Distinct().ToList();
+        // neighbours.Remove(v);
+        //  neighbours.RemoveAll(x => v.neighbours.Contains(x));
+        foreach (Point n in neighbours)
+        {
+            n.CalculateVoronoiCell();
+            bool positive = true;
+            n.faces.OrderBy(o => o.plane.distance);
+            
+            for (int i = 0; i < n.faces.Count; i++)
+            {
+                if (Mathf.Abs(n.faces[i].plane.distance) < (transform.localScale / 2).magnitude)
+                {
+                    if (i == 0)
+                    {
+                        s = SliceObj.Slice(n.faces[i].plane, gameObject);
+
+                        if (n.faces[i].plane.distance > 0)
+                        {
+                            Destroy(s[1].gameObject);
+                            positive = true;
+                        }
+                        else
+                        {
+                            Destroy(s[0].gameObject);
+                            positive = false;
+                        }
+                    }
+                    /*  else
+                      {
+                          if (positive)
+                          {
+                              if (n.faces[i].plane.distance > 0)
+                                  s = SliceObj.Slice(n.faces[i].plane, s[0].gameObject);
+                              else
+                                  s = SliceObj.Slice(n.faces[i].plane.flipped, s[0].gameObject);
+
+                              Destroy(s[1].gameObject);
+
+                          }
+                          else
+                          {
+                              if (n.faces[i].plane.distance < 0)
+                                  s = SliceObj.Slice(n.faces[i].plane, s[1].gameObject);
+                              else
+                                  s = SliceObj.Slice(n.faces[i].plane.flipped, s[1].gameObject);
+                              Destroy(s[0].gameObject);
+
+                          }
+                      }
+
+
+                      if (s[0].GetComponent<MeshFilter>().mesh.triangles.Length == 0)
+                          Destroy(s[0].gameObject);
+                      if (s[1].GetComponent<MeshFilter>().mesh.triangles.Length == 0)
+                          Destroy(s[1].gameObject);*/
+                }
+            }
+               
+
+
+        }
 
     }
 }
+
+
+
 

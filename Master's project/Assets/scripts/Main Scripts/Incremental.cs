@@ -59,13 +59,6 @@ public class Incremental
 
         foreach (Tetrahedron tetra in triangulation.ToList())
         {
-            /*if (debug)
-            {
-                foreach (Face f in tetra.faces)
-                {
-                    tetra.DrawTetra();
-                }
-            }*/
 
             tetra.id = triangulation.FindIndex(0, o => o.Equals(tetra));
             foreach (Face f in tetra.faces)
@@ -73,6 +66,7 @@ public class Incremental
                 if (CheckFace(f, s_t))
                 {
                     triangulation.Remove(tetra);
+                    tetra.removeFromVertices();
                     break;
                 }
             }
@@ -101,6 +95,8 @@ public class Incremental
             {
                 it.isBad = true;
                 badT.Add(it);
+                it.removeFromVertices();
+
             }
 
         }

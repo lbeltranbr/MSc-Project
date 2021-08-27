@@ -12,11 +12,17 @@ public class Tetrahedron
     public int id;
     public Tetrahedron(Point p1, Point p2, Point p3, Point p4)
     {
-        vertices[0] = p1;
-        vertices[1] = p2;
-        vertices[2] = p3;
-        vertices[3] = p4;
+        
 
+        this.vertices[0] = p1;
+        this.vertices[1] = p2;
+        this.vertices[2] = p3;
+        this.vertices[3] = p4;
+
+        p1.AddTetrahedron(this);
+        p2.AddTetrahedron(this);
+        p3.AddTetrahedron(this);
+        p4.AddTetrahedron(this);
 
         faces.Add(new Face(p1, p2, p3, this, 0));
         faces.Add(new Face(p1, p4, p3, this, 1));
@@ -30,6 +36,7 @@ public class Tetrahedron
 
         CalculateCircumcenter();
 
+       
     }
     public void CalculateCircumcenter()
     {
@@ -102,6 +109,14 @@ public class Tetrahedron
         }
         return neighbors;
 
+    }
+    public void removeFromVertices()
+    {
+        vertices[0].RemoveTetrahedron(this);
+        vertices[1].RemoveTetrahedron(this);
+        vertices[2].RemoveTetrahedron(this);
+        vertices[3].RemoveTetrahedron(this);
+        
     }
 
     public void DrawTetra()
