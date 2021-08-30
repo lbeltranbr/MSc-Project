@@ -104,7 +104,6 @@ public class Point
                 }
             }
 
-            //Found vertices form a Voronoi face
             faces.Add(new VoronoiTessellation(VoronoiVertices, halfplane));
         }
 

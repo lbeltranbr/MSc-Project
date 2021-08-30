@@ -132,7 +132,7 @@ public class DivideAndConquer
             {
                 /*cyclic=true;
 				break;*/
-                List<Point> pts = points;
+                List<Point> pts = points.ToList();
                 pts.Remove(t.vertices[3]);
                 t = MakeSimplex(f, pts);
             }
@@ -205,7 +205,7 @@ public class DivideAndConquer
 
     public void SetPlane(List<Point> points, int axis)
     {
-       
+
         Vector3 p;
 
 
@@ -246,16 +246,9 @@ public class DivideAndConquer
         foreach (Point p in points)
         {
             if (a.GetSide(p.getPoint()))
-            {
-
                 p1.Add(p); //positive side of the plane
-            }
             else
-            {
-
-
                 p2.Add(p); //negative side of the plane
-            }
         }
     }
 
@@ -278,7 +271,7 @@ public class DivideAndConquer
             }
         }
         point1 = p2[index];
-        Debug.Log("first point " + point1.id);
+        // Debug.Log("first point " + point1.id);
 
         //*************POINT 2*************//
         // Selects the point nearest to the first point on the other side of the plane
@@ -295,7 +288,7 @@ public class DivideAndConquer
             }
         }
         point2 = p1[index];
-        Debug.Log("second point " + point2.id);
+        // Debug.Log("second point " + point2.id);
 
 
         index = 0;
@@ -327,7 +320,7 @@ public class DivideAndConquer
 
         }
         point3 = points[index];
-        Debug.Log("third point " + point3.id);
+        //Debug.Log("third point " + point3.id);
 
 
         //*************POINT 4*************//
@@ -360,11 +353,11 @@ public class DivideAndConquer
 
             }
         }
-        Debug.Log("4th point " + points[index].id);
+        // Debug.Log("4th point " + points[index].id);
 
         if (!pl.GetSide(points[index].getPoint()))
         {
-            Debug.Log("4th point is in left side");
+            // Debug.Log("4th point is in left side");
 
             Vector3 i = point1.getPoint();
             int id = point1.id;
@@ -372,14 +365,14 @@ public class DivideAndConquer
             point1.id = point2.id;
             point2.SetP(i);
             point2.id = id;
-            Debug.Log("invert face: " + point1.id.ToString() + point2.id.ToString() + point3.id.ToString());
+            // Debug.Log("invert face: " + point1.id.ToString() + point2.id.ToString() + point3.id.ToString());
         }
 
         if (index == -1)
             return null;
         else
         {
-            Debug.Log("tetrahedron: " + point1.id.ToString() + point2.id.ToString() + point3.id.ToString() + points[index].id.ToString());
+            // Debug.Log("tetrahedron: " + point1.id.ToString() + point2.id.ToString() + point3.id.ToString() + points[index].id.ToString());
             return new Tetrahedron(point1, point2, point3, points[index]);
         }
 
@@ -444,7 +437,7 @@ public class DivideAndConquer
         }
         else
         {
-            Debug.Log("tetrahedron: " + f.Point1.id.ToString() + f.Point2.id.ToString() + f.Point3.id.ToString() + p[index].id.ToString());
+            //Debug.Log("tetrahedron: " + f.Point1.id.ToString() + f.Point2.id.ToString() + f.Point3.id.ToString() + p[index].id.ToString());
             return new Tetrahedron(f.Point1, f.Point2, f.Point3, p[index]);
         }
     }
